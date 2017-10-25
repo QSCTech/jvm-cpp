@@ -1,0 +1,9 @@
+.idea/
+*.cbp
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake-build-debug/
+jvm
+libs/docopt/*.a
+libs/docopt/*.dylib
