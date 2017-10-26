@@ -22,9 +22,17 @@ Entry *Classpath::newEntry(const std::string path)
 	return new DirEntry(path);
 }
 
-CompositeEntry::CompositeEntry(const std::string path)
+CompositeEntry::CompositeEntry(const std::string pathList)
 {
+	
+}
 
+CompositeEntry::~CompositeEntry()
+{
+	for(auto entry : this->Entries)
+	{
+		delete entry;
+	}
 }
 
 WildcardEntry::WildcardEntry(const std::string path)

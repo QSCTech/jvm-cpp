@@ -17,7 +17,13 @@ class ZipEntry;
 
 class DirEntry;
 
-struct ReadClassResult {std::vector<char> data; Entry & entry; FileReadError err; int status; };
+struct ReadClassResult
+{
+	std::vector<char> data;
+	Entry &entry;
+	FileReadError err;
+	int status;
+};
 
 class Classpath
 {
@@ -28,6 +34,7 @@ class Classpath
 class Entry
 {
   public:
+	virtual ~Entry() = 0;
 	virtual ReadClassResult readClass(std::string className) = 0;
 	virtual std::string String() = 0;
 };
@@ -36,6 +43,8 @@ class DirEntry: public Entry
 {
 	std::string absDir;
   public:
+	~DirEntry() override = default;
+	
 	explicit DirEntry(std::string path) : absDir(boost::filesystem::canonical(path).string())
 	{}
 	
@@ -47,6 +56,8 @@ class ZipEntry: public Entry
 {
 	std::string absPath;
   public:
+	~ZipEntry() override = default;
+	
 	explicit ZipEntry(std::string path) : absPath(boost::filesystem::canonical(path).string())
 	{}
 	
@@ -57,7 +68,9 @@ class ZipEntry: public Entry
 class CompositeEntry: public Entry
 {
   public:
-	explicit CompositeEntry(std::string path);
+	~CompositeEntry() override;
+	std::vector<Entry *> Entries;
+	explicit CompositeEntry(std::string pathList);
 	ReadClassResult readClass(std::string className) override;
 	std::string String() override;
 };
@@ -65,6 +78,7 @@ class CompositeEntry: public Entry
 class WildcardEntry: public Entry
 {
   public:
+	~WildcardEntry() override;
 	explicit WildcardEntry(std::string path);
 	ReadClassResult readClass(std::string className) override;
 	std::string String() override;
