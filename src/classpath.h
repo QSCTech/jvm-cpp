@@ -67,6 +67,7 @@ class ZipEntry: public Entry
 
 class CompositeEntry: public Entry
 {
+	std::string pathList;
   public:
 	~CompositeEntry() override;
 	std::vector<Entry *> Entries;
@@ -77,8 +78,10 @@ class CompositeEntry: public Entry
 
 class WildcardEntry: public Entry
 {
+	std::string baseDir;
   public:
 	~WildcardEntry() override;
+	std::vector<Entry *> Entries;
 	explicit WildcardEntry(std::string path);
 	ReadClassResult readClass(std::string className) override;
 	std::string String() override;

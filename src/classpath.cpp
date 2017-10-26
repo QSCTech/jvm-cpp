@@ -1,5 +1,7 @@
 #include "classpath.h"
 #include <zip.h>
+#include <boost/algorithm/string.hpp>
+#include <dirent.h>
 #include <boost/algorithm/string/predicate.hpp>
 
 using namespace boost::algorithm;
@@ -20,24 +22,6 @@ Entry *Classpath::newEntry(const std::string path)
 		return new ZipEntry(path);
 	}
 	return new DirEntry(path);
-}
-
-CompositeEntry::CompositeEntry(const std::string pathList)
-{
-	
-}
-
-CompositeEntry::~CompositeEntry()
-{
-	for(auto entry : this->Entries)
-	{
-		delete entry;
-	}
-}
-
-WildcardEntry::WildcardEntry(const std::string path)
-{
-
 }
 
 ReadClassResult DirEntry::readClass(std::string className)
@@ -67,7 +51,7 @@ ReadClassResult ZipEntry::readClass(std::string className)
 	}
 	zip_stat_init(&status);
 	stat = zip_stat(zip_f, className.c_str(), 0, &status);
-	if(stat == -1)
+	if (stat == -1)
 	{
 		return {data, *this, FileReadError(className), STATUS_ERR};
 	}
@@ -85,3 +69,93 @@ std::string ZipEntry::String()
 	return this->absPath;
 }
 
+CompositeEntry::CompositeEntry(const std::string pathList) : pathList(pathList)
+{
+	std::vector<std::string> paths;
+	if (pathList.find(':'))
+	{
+		split(paths, pathList, is_any_of(":"));
+	} else if (pathList.find(';'))
+	{
+		split(paths, pathList, is_any_of(";"));
+	}
+	for (auto path: paths)
+	{
+		this->Entries.push_back(Classpath::newEntry(path));
+	}
+}
+
+CompositeEntry::~CompositeEntry()
+{
+	for (auto entry : this->Entries)
+	{
+		delete entry;
+	}
+}
+
+ReadClassResult CompositeEntry::readClass(std::string className)
+{
+	for (auto entry : this->Entries)
+	{
+		ReadClassResult result = entry->readClass(className);
+		if (result.status == STATUS_OK)
+		{
+			return result;
+		}
+	}
+	return {std::vector<char>(), *this, FileReadError(""), STATUS_ERR};
+}
+
+std::string CompositeEntry::String()
+{
+	return this->pathList;
+}
+
+WildcardEntry::~WildcardEntry()
+{
+	for (auto entry : this->Entries)
+	{
+		delete entry;
+	}
+}
+
+WildcardEntry::WildcardEntry(const std::string path): baseDir(boost::filesystem::canonical(path).string())
+{
+	struct dirent * file;
+	baseDir.pop_back();
+	auto dir = opendir(baseDir.c_str());
+	if(dir == NULL)
+	{
+		throw DirOpenError(baseDir);
+	}
+	while ((file = readdir(dir)) != NULL) {
+		if(file->d_type == DT_DIR) continue;
+		std::string filename(file->d_name);
+		if(ends_with(filename, ".jar") || ends_with(filename, "JAR"))
+		{
+			Entries.push_back(new ZipEntry(filename));
+		}
+	}
+	if(this->Entries.size() == 0)
+	{
+		throw FileNotFoundError(baseDir);
+	}
+}
+
+ReadClassResult WildcardEntry::readClass(std::string className)
+{
+	for (auto entry : this->Entries)
+	{
+		ReadClassResult result = entry->readClass(className);
+		if (result.status == STATUS_OK)
+		{
+			return result;
+		}
+	}
+	return {std::vector<char>(), *this, FileReadError(""), STATUS_ERR};
+}
+
+std::string WildcardEntry::String()
+{
+	return this->baseDir;
+}
