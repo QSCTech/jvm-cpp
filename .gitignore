@@ -5,5 +5,5 @@ CMakeFiles/
 Makefile
 cmake-build-debug/
 jvm
-libs/docopt/*.a
-libs/docopt/*.dylib
+*.a
+*.dylib
