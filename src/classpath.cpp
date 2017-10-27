@@ -82,7 +82,6 @@ ReadClassResult Classpath::ReadClass(std::string className)
 	if (!optionMap["--jar"].asBool())
 	{
 		filename = className + ".class";
-//		std::cout << "optionMap[\"--jar\"]: " << optionMap["--jar"] << std::endl;
 	} else {
 		filename = className + ".jar";
 	}

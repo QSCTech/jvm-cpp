@@ -13,12 +13,14 @@ void Jvm::StartJvm(std::map<std::string, docopt::value> args)
 	auto result = cp->ReadClass(target);
 	if (result.status == STATUS_OK)
 	{
-		std::cout << "data: " << std::endl;
+		std::cout << "data("<< result.data.size() <<"): " << std::endl;
 		for (auto i: result.data)
 		{
 			std::cout << i << ' ';
 		}
 		std::cout << std::endl;
+	} else
+	{
+		std::cout << "StartJVM error: " << result.err.what() << std::endl;
 	}
-	std::cout << "StartJVM error: " << result.err.what() << std::endl;
 }
