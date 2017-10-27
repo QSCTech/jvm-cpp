@@ -7,7 +7,6 @@ include_directories(../libs/docopt)
 include_directories(../libs/libzip/lib)
 
 link_directories("../libs/docopt")
-link_directories("../libs/libzip/lib")
 link_libraries(libdocopt.a)
 link_libraries(libzip.a)
 

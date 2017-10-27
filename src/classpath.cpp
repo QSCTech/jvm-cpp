@@ -7,6 +7,9 @@
 using namespace boost::algorithm;
 using namespace boost::filesystem;
 
+Entry::~Entry()
+{}
+
 Entry *Classpath::newEntry(const std::string path)
 {
 	if (path.find(';') != std::string::npos || path.find(':') != std::string::npos)
