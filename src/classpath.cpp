@@ -1,4 +1,5 @@
 #include "classpath.h"
+#include <iostream>
 #include <zip.h>
 #include <boost/algorithm/string.hpp>
 #include <dirent.h>
@@ -44,30 +45,29 @@ void Classpath::parseBootAndExtClasspath(std::string srcPath)
 	jreExtPath /= "lib";
 	jreExtPath /= "ext";
 	jreExtPath /= "*";
-	this->pathMap["bootClasspath"] = new WildcardEntry(jreBootPath.string());
-	this->pathMap["extClasspath"] = new WildcardEntry(jreExtPath.string());
+	this->pathMap["bootClasspath"] = jreBootPath.string();
+	this->pathMap["extClasspath"] = jreExtPath.string();
 }
 
 void Classpath::parseUserClasspath(std::string srcPath)
 {
-	this->pathMap["userClasspath"] = newEntry(srcPath);
+	this->pathMap["userClasspath"] = srcPath;
 }
 
 std::string Classpath::getJreDir(std::string srcPath)
 {
-	if(srcPath != "$JAVA_HOME" && exists(srcPath)) return srcPath;
-	if(exists("./jre")) return "./jre";
+	if (srcPath != "$JAVA_HOME" && exists(srcPath)) return srcPath;
+	if (exists("./jre")) return "./jre";
 	auto javaHome = std::string(getenv("JAVA_HOME"));
-	if(!javaHome.empty())
+	if (!javaHome.empty())
 	{
 		path javaSrc(javaHome);
 		javaSrc /= "jre";
-		if(exists(javaSrc.string()))
+		if (exists(javaSrc.string()))
 		{
 			return javaSrc.string();
 		}
 	}
-	
 	throw JavaSrcError(srcPath);
 }
 
@@ -78,17 +78,31 @@ bool Classpath::exists(std::string srcPath)
 
 ReadClassResult Classpath::ReadClass(std::string className)
 {
-	if(!optionMap["--jar"]) className += ".class";
-	ReadClassResult result = this->pathMap["bootClasspath"]->readClass(className);
-	if(result.status == STATUS_OK) return result;
-	result = this->pathMap["extClasspath"]->readClass(className);
-	if(result.status == STATUS_OK) return result;
-	return this->pathMap["userClasspath"]->readClass(className);
+	std::string filename;
+	if (!optionMap["--jar"].asBool())
+	{
+		filename = className + ".class";
+//		std::cout << "optionMap[\"--jar\"]: " << optionMap["--jar"] << std::endl;
+	} else {
+		filename = className + ".jar";
+	}
+	std::cout << "filename: " << filename << std::endl;
+	if (exists(this->pathMap["bootClasspath"]))
+	{
+		ReadClassResult result = WildcardEntry(this->pathMap["bootClasspath"]).readClass(filename);
+		if (result.status == STATUS_OK) return result;
+	}
+	if (exists(this->pathMap["extClasspath"]))
+	{
+		ReadClassResult result = WildcardEntry(this->pathMap["extClasspath"]).readClass(filename);
+		if (result.status == STATUS_OK) return result;
+	}
+	return newEntry(this->pathMap["userClasspath"])->readClass(filename);
 }
 
 std::string Classpath::String()
 {
-	return this->pathMap["userClasspath"]->String();
+	return this->pathMap["userClasspath"];
 }
 
 ReadClassResult DirEntry::readClass(std::string className)
@@ -186,10 +200,12 @@ WildcardEntry::~WildcardEntry()
 	}
 }
 
-WildcardEntry::WildcardEntry(const std::string path) : baseDir(boost::filesystem::canonical(path).string())
+WildcardEntry::WildcardEntry(const std::string path)
 {
 	struct dirent *file;
-	baseDir.pop_back();
+	auto dirPath = path;
+	dirPath.pop_back();
+	boost::filesystem::canonical(dirPath).string();
 	auto dir = opendir(baseDir.c_str());
 	if (dir == NULL)
 	{

@@ -29,7 +29,7 @@ struct ReadClassResult
 class Classpath
 {
 	std::map<std::string, docopt::value> optionMap;
-	std::map<std::string, Entry*> pathMap;
+	std::map<std::string, std::string> pathMap;
 	void parseBootAndExtClasspath(std::string path);
 	void parseUserClasspath(std::string path);
 	std::string getJreDir(std::string path);
