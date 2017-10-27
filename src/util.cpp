@@ -3,16 +3,12 @@
 
 ReadResult util::ReadAllBytes(std::string filename)
 {
-	std::ifstream ifs(filename, std::ios::binary | std::ios::ate);
-	std::vector<char> result;
-	if(!ifs)
+	std::ifstream ifs(filename, std::ios::binary | std::ios::in);
+	std::vector<BYTE> result;
+	if(ifs.fail())
 	{
 		return {result, FileReadError(filename), STATUS_ERR};
 	}
-	std::ifstream::pos_type pos = ifs.tellg();
-	result.reserve(pos);
-	ifs.seekg(0, std::ios::beg);
-	ifs.read(&result[0], pos);
-	ifs.close();
+	std::copy(std::istream_iterator<BYTE>(ifs), std::istream_iterator<BYTE>(), std::back_inserter(result));
 	return {result, FileReadError(""), STATUS_OK};
 }

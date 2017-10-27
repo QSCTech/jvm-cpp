@@ -2,6 +2,7 @@
 #define JVM_UTIL_H
 #define STATUS_ERR 1
 #define STATUS_OK 0
+#define BYTE unsigned char
 #include <fstream>
 #include <vector>
 #include <string>
@@ -67,7 +68,7 @@ class JavaSrcError: std::exception
 
 struct ReadResult
 {
-	std::vector<char> data;
+	std::vector<BYTE> data;
 	FileReadError err;
 	int status;
 };
