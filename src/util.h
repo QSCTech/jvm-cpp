@@ -7,7 +7,9 @@
 #include <string>
 
 class FileReadError;
+
 class DirOpenError;
+
 struct ReadResult;
 
 class FileReadError: std::exception
@@ -49,7 +51,26 @@ class FileNotFoundError: std::exception
 	{ return errString.c_str(); }
 };
 
-struct ReadResult {std::vector<char> data; FileReadError err; int status; };
+class JavaSrcError: std::exception
+{
+	std::string errString;
+  public:
+	explicit JavaSrcError(std::string filename)
+	{
+		errString = filename + " , ./jre or JAVA_HOME not exist or open fail";
+	}
+	
+	const char *what() const throw() override
+	{ return errString.c_str(); }
+};
+
+
+struct ReadResult
+{
+	std::vector<char> data;
+	FileReadError err;
+	int status;
+};
 
 namespace util
 {

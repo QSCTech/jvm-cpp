@@ -6,15 +6,19 @@ static const char USAGE[] =
 R"(Jvm.
 
     Usage:
-	jvm <file>
-	jvm (-j | --jar) <file>
+	jvm <target> [options]
+	jvm (-j | --jar) <target> [options]
 	jvm (-h | --help)
 	jvm (-v | --version)
 
     Options:
-	-j --jar          run jar file
-	-h --help         Show this screen.
-	-v --version      Show version.
+	-j --jar                run jar file
+	-h --help               Show this screen.
+	-v --version            Show version.
+	-x --Xjre PATH          Jvm boot path
+			[default: $JAVA_HOME]
+	-c --classpath CP       boot path of users
+			[default: ./]
 )";
 
 
@@ -25,5 +29,9 @@ int main(int argc, char **argv)
 	                 {argv + 1, argv + argc},
 	                 true,
 	                 "Jvm 2.0");
+	for(auto arg : args)
+	{
+		std::cout << arg.first << ": " << arg.second << std::endl;
+	}
 	Jvm::StartJvm(args);
 }

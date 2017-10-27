@@ -3,6 +3,7 @@
 #define JVM_CLASSPATH_H
 #include <string>
 #include <boost/filesystem.hpp>
+#include "docopt.h"
 #include "util.h"
 
 class Entry;
@@ -20,15 +21,24 @@ class DirEntry;
 struct ReadClassResult
 {
 	std::vector<char> data;
-	Entry &entry;
+	Entry *entry;
 	FileReadError err;
 	int status;
 };
 
 class Classpath
 {
+	std::map<std::string, docopt::value> optionMap;
+	std::map<std::string, Entry*> pathMap;
+	void parseBootAndExtClasspath(std::string path);
+	void parseUserClasspath(std::string path);
+	std::string getJreDir(std::string path);
+	bool exists(std::string path);
   public:
+	explicit Classpath(std::map<std::string, docopt::value>);
 	static Entry *newEntry(std::string path);
+	ReadClassResult ReadClass(std::string className);
+	std::string String();
 };
 
 class Entry
