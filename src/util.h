@@ -2,7 +2,7 @@
 #define JVM_UTIL_H
 #define STATUS_ERR 1
 #define STATUS_OK 0
-#define BYTE unsigned char
+#define BYTE uint8_t
 #include <fstream>
 #include <vector>
 #include <string>

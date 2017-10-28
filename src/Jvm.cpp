@@ -1,6 +1,7 @@
 #include "Jvm.h"
 #include "classpath.h"
 #include <iostream>
+#include "ClassFile.h"
 
 void Jvm::StartJvm(std::map<std::string, docopt::value> args)
 {

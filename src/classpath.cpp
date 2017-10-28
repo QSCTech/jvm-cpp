@@ -3,7 +3,7 @@
 #include <zip.h>
 #include <boost/algorithm/string.hpp>
 #include <dirent.h>
-#include <boost/algorithm/string/predicate.hpp>
+//#include <boost/algorithm/string/predicate.hpp>
 
 using namespace boost::algorithm;
 using namespace boost::filesystem;
