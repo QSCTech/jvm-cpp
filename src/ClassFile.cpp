@@ -151,5 +151,5 @@ std::string MemberInfo::Descriptor()
 
 std::vector<AttributeInfo> AttributeInfo::readAttributes(ClassReader *reader, ConstantPool *cp)
 {
-
+	return 
 }

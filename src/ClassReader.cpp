@@ -9,6 +9,7 @@ uint8_t ClassReader::readUint8()
 
 uint16_t ClassReader::readUint16()
 {
+	
 	auto value = (uint16_t) data[0];
 	value = value << 8 | data[1];
 	data.erase(data.begin(), data.begin() + 2);
