@@ -3,6 +3,7 @@
 
 #include "docopt.h"
 #include "util.h"
+#include "ClassFile.h"
 
 class Jvm
 {

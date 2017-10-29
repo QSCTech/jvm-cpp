@@ -20,6 +20,9 @@ void Jvm::StartJvm(std::map<std::string, docopt::value> args)
 			std::cout << i << ' ';
 		}
 		std::cout << std::endl;
+		
+		auto classFile = new ClassFile();
+		auto parseResult = classFile->Parse(result.data);
 	} else
 	{
 		std::cout << "StartJVM error: " << result.err.what() << std::endl;

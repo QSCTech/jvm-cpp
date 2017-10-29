@@ -65,6 +65,32 @@ class JavaSrcError: std::exception
 	{ return errString.c_str(); }
 };
 
+class ConstantPoolIndexInvalid: std::exception
+{
+	std::string errString;
+  public:
+	explicit ConstantPoolIndexInvalid()
+	{
+		errString = "java.lang.ConstantPoolIndexInvalid";
+	}
+	
+	const char *what() const throw() override
+	{ return errString.c_str(); }
+};
+
+class JavaClassFormatError: std::exception
+{
+	std::string errString;
+  public:
+	explicit JavaClassFormatError(std::string which)
+	{
+		errString = "java.lang.JavaClassFormatError: " + which;
+	}
+	
+	const char *what() const throw() override
+	{ return errString.c_str(); }
+};
+
 
 struct ReadResult
 {

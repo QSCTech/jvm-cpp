@@ -5,14 +5,16 @@
 class ClassReader
 {
 	std::vector<BYTE> data;
+  public:
 	uint8_t readUint8();
 	uint16_t readUint16();
 	uint32_t readUint32();
 	uint64_t readUint64();
 	std::vector<uint16_t> readUint16s();
 	std::vector<BYTE> readBytes(uint32_t n);
-  public:
-	ClassReader(std::vector<BYTE> data): data(data){}
+	
+	ClassReader(std::vector<BYTE> data) : data(data)
+	{}
 };
 
 #endif
