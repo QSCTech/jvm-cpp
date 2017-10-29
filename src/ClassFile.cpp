@@ -34,7 +34,7 @@ ParseResult ClassFile::Read(ClassReader *reader)
 		this->interfaces = reader->readUint16s();
 		this->fields = MemberInfo::readMembers(reader, this->cp);
 		this->methods = MemberInfo::readMembers(reader, this->cp);
-		this->attributes = AttributeInfo::readAttributes(reader, this->cp);
+		this->attributes = AttributeSpace::readAttributes(reader, this->cp);
 		return {"", STATUS_OK};
 	}
 	catch (JavaClassFormatError &err)
@@ -131,7 +131,7 @@ MemberInfo *MemberInfo::readMember(ClassReader *reader, ConstantPool *constantPo
 	                      reader->readUint16(),
 	                      reader->readUint16(),
 	                      reader->readUint16(),
-	                      AttributeInfo::readAttributes(reader, constantPool));
+	                      AttributeSpace::readAttributes(reader, constantPool));
 }
 
 uint16_t MemberInfo::AccessFlags()
@@ -147,9 +147,4 @@ std::string MemberInfo::Name()
 std::string MemberInfo::Descriptor()
 {
 	return this->constantPool->getUtf8(this->descriptorIndex);
-}
-
-std::vector<AttributeInfo> AttributeInfo::readAttributes(ClassReader *reader, ConstantPool *cp)
-{
-	return 
 }

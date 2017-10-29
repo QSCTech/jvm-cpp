@@ -2,6 +2,7 @@
 #define JVM_CLASSFILE_H
 #include "util.h"
 #include "ConstantPool.h"
+#include "AttributeInfo.h"
 #include <map>
 
 /*
@@ -30,8 +31,6 @@ struct ParseResult;
 
 class MemberInfo;
 
-class AttributeInfo;
-
 class ClassFile
 {
 	uint32_t magic;
@@ -44,10 +43,11 @@ class ClassFile
 	std::vector<uint16_t> interfaces;
 	std::vector<MemberInfo *> fields;
 	std::vector<MemberInfo *> methods;
-	std::vector<AttributeInfo> attributes;
+	std::vector<AttributeInfo *> attributes;
 	ParseResult Read(ClassReader *reader);
 	ParseResult readAndCheckMagic(ClassReader *reader);
 	ParseResult readAndCheckVersion(ClassReader *reader);
+  public:
 	uint16_t MinorVersion();
 	uint16_t MajorVersion();
 	ConstantPool *GetConstantPool();
@@ -57,7 +57,7 @@ class ClassFile
 	std::string ClassName();
 	std::string SuperClassName();
 	std::vector<std::string> InterfaceName();
-  public:
+	
 	explicit ClassFile()
 	: magic(0), minorVersion(0), majorVersion(0), cp(nullptr), accessFlags(0), thisClass(0), superClass(0)
 	{};
@@ -76,13 +76,13 @@ class MemberInfo
 	uint16_t accessFlags;
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
-	std::vector<AttributeInfo> attributes;
+	std::vector<AttributeInfo *> attributes;
   public:
 	MemberInfo(ConstantPool *cp,
 	uint16_t accessFlags,
 	uint16_t nameIndex,
 	uint16_t descriptorIndex,
-	std::vector<AttributeInfo> attributes)
+	std::vector<AttributeInfo *> attributes)
 	: constantPool(cp), accessFlags(accessFlags), nameIndex(nameIndex), descriptorIndex(descriptorIndex),
 	  attributes(attributes)
 	{}
@@ -92,12 +92,6 @@ class MemberInfo
 	uint16_t AccessFlags();
 	std::string Name();
 	std::string Descriptor();
-};
-
-class AttributeInfo
-{
-  public:
-	static std::vector<AttributeInfo> readAttributes(ClassReader *reader, ConstantPool *cp);
 };
 
 #endif
