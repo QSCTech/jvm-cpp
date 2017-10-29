@@ -20,7 +20,7 @@ class DirEntry;
 
 struct ReadClassResult
 {
-	std::vector<BYTE> data;
+	std::vector<byte> data;
 	Entry *entry;
 	FileReadError err;
 	int status;

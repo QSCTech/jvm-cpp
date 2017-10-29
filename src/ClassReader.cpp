@@ -9,15 +9,15 @@ uint8_t ClassReader::readUint8()
 
 uint16_t ClassReader::readUint16()
 {
-	uint16_t value = (uint16_t) data[0];
+	auto value = (uint16_t) data[0];
 	value = value << 8 | data[1];
-	data.erase(data.begin(), data.begin() + 1);
+	data.erase(data.begin(), data.begin() + 2);
 	return value;
 }
 
 uint32_t ClassReader::readUint32()
 {
-	uint32_t value = (uint32_t) data[0];
+	auto value = (uint32_t) data[0];
 	for (int i = 1; i < 4; i++)
 	{
 		value = value << 8 | data[i];
@@ -48,9 +48,9 @@ std::vector<uint16_t> ClassReader::readUint16s()
 	return vec;
 }
 
-std::vector<BYTE> ClassReader::readBytes(uint32_t n)
+std::vector<byte> ClassReader::readBytes(uint32_t n)
 {
-	std::vector<BYTE> vec(data.begin(), data.begin() + n);
+	std::vector<byte> vec(data.begin(), data.begin() + n);
 	data.erase(data.begin(), data.begin() + n);
 	return vec;
 }

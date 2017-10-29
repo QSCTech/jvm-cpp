@@ -82,7 +82,8 @@ ReadClassResult Classpath::ReadClass(std::string className)
 	if (!optionMap["--jar"].asBool())
 	{
 		filename = className + ".class";
-	} else {
+	} else
+	{
 		filename = className + ".jar";
 	}
 	std::cout << "filename: " << filename << std::endl;
@@ -121,10 +122,10 @@ ReadClassResult ZipEntry::readClass(std::string className)
 {
 	int err = 0, stat;
 	struct zip_stat status;
-	BYTE *contents;
+	byte *contents;
 	zip_file *file;
 	zip *zip_f = zip_open(this->absPath.c_str(), 0, &err);
-	std::vector<BYTE> data;
+	std::vector<byte> data;
 	if (zip_f == NULL)
 	{
 		return {data, this, FileReadError(this->absPath), STATUS_ERR};
@@ -135,12 +136,12 @@ ReadClassResult ZipEntry::readClass(std::string className)
 	{
 		return {data, this, FileReadError(className), STATUS_ERR};
 	}
-	contents = new BYTE[status.size];
+	contents = new byte[status.size];
 	file = zip_fopen(zip_f, className.c_str(), 0);
 	zip_fread(file, contents, status.size);
 	zip_fclose(file);
 	zip_close(zip_f);
-	data = std::vector<BYTE>(contents, contents + status.size);
+	data = std::vector<byte>(contents, contents + status.size);
 	return {data, this, FileReadError(""), STATUS_OK};
 }
 
@@ -183,7 +184,7 @@ ReadClassResult CompositeEntry::readClass(std::string className)
 			return result;
 		}
 	}
-	return {std::vector<BYTE>(), this, FileReadError(""), STATUS_ERR};
+	return {std::vector<byte>(), this, FileReadError(""), STATUS_ERR};
 }
 
 std::string CompositeEntry::String()
@@ -235,7 +236,7 @@ ReadClassResult WildcardEntry::readClass(std::string className)
 			return result;
 		}
 	}
-	return {std::vector<BYTE>(), this, FileReadError(""), STATUS_ERR};
+	return {std::vector<byte>(), this, FileReadError(""), STATUS_ERR};
 }
 
 std::string WildcardEntry::String()

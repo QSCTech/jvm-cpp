@@ -17,12 +17,16 @@ void Jvm::StartJvm(std::map<std::string, docopt::value> args)
 		std::cout << "data("<< result.data.size() <<"): " << std::endl;
 		for (auto i: result.data)
 		{
-			std::cout << i << ' ';
+			printf("%X", i);
 		}
 		std::cout << std::endl;
 		
 		auto classFile = new ClassFile();
 		auto parseResult = classFile->Parse(result.data);
+		if(parseResult.status == STATUS_ERR)
+		{
+			std::cout << parseResult.error << std::endl;
+		}
 	} else
 	{
 		std::cout << "StartJVM error: " << result.err.what() << std::endl;

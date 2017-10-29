@@ -2,7 +2,7 @@
 #define JVM_UTIL_H
 #define STATUS_ERR 1
 #define STATUS_OK 0
-#define BYTE uint8_t
+#define byte uint8_t
 #include <fstream>
 #include <vector>
 #include <string>
@@ -91,10 +91,9 @@ class JavaClassFormatError: std::exception
 	{ return errString.c_str(); }
 };
 
-
 struct ReadResult
 {
-	std::vector<BYTE> data;
+	std::vector<byte> data;
 	FileReadError err;
 	int status;
 };
