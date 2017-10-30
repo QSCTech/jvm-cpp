@@ -6,6 +6,8 @@
 #define JVM_CONSTANTPOOL_H
 #include "util.h"
 #include "ClassReader.h"
+#include <iostream>
+#include <ctype.h>
 #include <map>
 
 class ConstantInfo;

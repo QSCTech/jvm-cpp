@@ -3,7 +3,6 @@
 //
 
 #include "ConstantPool.h"
-#include <iostream>
 
 ConstantInfo *ConstantInfoSpace::newConstantInfo(uint8_t tag, ConstantPool *cp)
 {
@@ -148,10 +147,85 @@ uint8_t ConstantUtf8Info::getTag()
 	return ConstantInfoSpace::CONSTANT_Utf8;
 }
 
+
 std::string ConstantInfoSpace::decodeMUTF8(std::vector<byte> bytes)
 {
-	return std::string(bytes.begin(), bytes.end());
+	return std::string(bytes.begin(), bytes.end()); // not correct!
 }
+
+/* mutf8 -> utf16 -> utf32 -> string
+ *see java.io.DataInputStream.readUTF(DataInput)*/
+//std::string ConstantInfoSpace::decodeMUTF8(std::vector<byte> bytes)
+//{
+//	auto utfLen = bytes.size();
+//	std::vector<uint16_t> wcharVec(utfLen);
+//	uint16_t c, char2, char3;
+//	uint32_t count = 0;
+//	uint32_t wcharCount = 0;
+//	/**
+//	 * 	while (count < utfLen)
+//		{
+//			c = (uint16_t) (bytes[count]);
+//			if (c > 127) break;
+//			count++;
+//			wcharVec[wcharCount] = c;
+//			wcharCount++;
+//		}
+//	 */
+//	while (count < utfLen)
+//	{
+//		c = (uint16_t) bytes[count];
+//		switch (c >> 4)
+//		{
+//			case 0:
+//			case 1:
+//			case 2:
+//			case 3:
+//			case 4:
+//			case 5:
+//			case 6:
+//			case 7: /* 0xxxxxxx */
+//				count++;
+//				wcharVec[wcharCount] = c;
+//				wcharCount++;
+//				break;
+//			case 12:
+//			case 13: /* 110x xxxx   10xx xxxx */
+//				count += 2;
+//				if (count > utfLen)
+//				{
+//					throw JavaClassFormatError("mutf8, malformed input: partial character at end");
+//				}
+//				char2 = (uint16_t) wcharVec[count - 1];
+//				if (char2 & 0xC0 != 0x80)
+//				{
+//					throw JavaClassFormatError("mutf8, malformed input around byte " + count);
+//				}
+//				wcharVec[wcharCount] = (uint16_t) (c & 0x1F << 6 | char2 & 0x3F);
+//				wcharCount++;
+//			case 14: /* 1110 xxxx  10xx xxxx  10xx xxxx */
+//				count += 3;
+//				if (count > utfLen)
+//				{
+//					throw JavaClassFormatError("mutf8, malformed input: partial character at end");
+//				}
+//				char2 = (uint16_t) wcharVec[count - 2];
+//				char3 = (uint16_t) wcharVec[count - 1];
+//				if (char2 & 0xC0 != 0x80 || char3 & 0xC0 != 0x80)
+//				{
+//					throw JavaClassFormatError("mutf8, malformed input around byte " + count - 1);
+//				}
+//				wcharVec[wcharCount] = (uint16_t) (c & 0x0F << 12 | char2 & 0x3F << 6 | char3 & 0x3F << 0);
+//				wcharCount++;
+//			default:
+//				/* 10xx xxxx,  1111 xxxx */
+//				throw JavaClassFormatError("mutf8, malformed input around byte " + count);
+//		}
+//	}
+////	std::wstring_convert<std::codecvt<char16_t,char,std::mbstate_t>,char16_t> convert;
+//	std::wstring u16(wcharVec.begin(), wcharVec.end());
+//	return std::string(u16);
+//}
 
 void ConstantUtf8Info::readInfo(ClassReader *reader)
 {
