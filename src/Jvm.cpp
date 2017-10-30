@@ -9,6 +9,7 @@ void Jvm::StartJvm(std::map<std::string, docopt::value> args)
 	printClassInfo(cf);
 	auto frame = Frame(100, 100);
 	testLocalVars(frame.localVars);
+	testOperandStack(frame.operandStack);
 }
 
 ClassFile *Jvm::loadClass(std::string className, Classpath *cp)
@@ -82,5 +83,18 @@ void Jvm::testLocalVars(LocalVars *vars)
 
 void Jvm::testOperandStack(OperandStack *stack)
 {
-
+	stack->PushInt(100);
+	stack->PushInt(-100);
+	stack->PushLong(1312413413);
+	stack->PushLong(-1312413413);
+	stack->PushFloat(3.141592);
+	stack->PushDouble(2.412414151351255125);
+	stack->PushRef(nullptr);
+	Test::assert_equal<Object*>(nullptr, stack->PopRef());
+	Test::assert_equal<double >(2.412414151351255125, stack->PopDouble());
+	Test::assert_equal<float >(3.141592, stack->PopFloat());
+	Test::assert_equal<int64_t >(-1312413413, stack->PopLong());
+	Test::assert_equal<int64_t >(1312413413, stack->PopLong());
+	Test::assert_equal(-100, stack->PopInt());
+	Test::assert_equal(100, stack->PopInt());
 }

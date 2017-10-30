@@ -1,7 +1,3 @@
-//
-// Created by 李晨曦 on 30/10/2017.
-//
-
 #ifndef JVM_SLOT_H
 #define JVM_SLOT_H
 #include <cstdint>
@@ -12,6 +8,14 @@ class Slot;
 class LocalVars;
 
 class OperandStack;
+
+union DoubleUnion;
+
+union DoubleUnion
+{
+	double value;
+	int32_t storage[2];
+};
 
 class OperandStack
 {
@@ -24,7 +28,7 @@ class OperandStack
 	void PushFloat(float val);
 	float PopFloat();
 	void PushLong(int64_t val);
-	float PopLong();
+	int64_t PopLong();
 	void PushDouble (double val);
 	double PopDouble();
 	void PushRef(Object* ref);
@@ -91,16 +95,17 @@ inline int64_t LocalVars::GetLong(uint32_t index)
 
 inline void LocalVars::SetDouble(uint32_t index, double val)
 {
-	int64_t temp;
-	memcpy(&temp, &val, 8);
-	this->SetLong(index, temp);
+	DoubleUnion DU = {val};
+	this->SetInt(index, DU.storage[0]);
+	this->SetInt(index + 1, DU.storage[1]);
 }
 
 inline double LocalVars::GetDouble(uint32_t index)
 {
-	double result;
-	result = this->GetLong(index);
-	return *(int64_t *) &result;
+	DoubleUnion DU = {};
+	DU.storage[0] = this->GetInt(index);
+	DU.storage[1] = this->GetInt(index+1);
+	return DU.value;
 }
 
 inline void LocalVars::SetRef(uint32_t index, Object *ref)
@@ -127,14 +132,15 @@ inline int32_t OperandStack::PopInt()
 
 inline void OperandStack::PushFloat(float val)
 {
-	this->slots[this->size]->num = static_cast<int32_t >(val);
+	this->slots[this->size]->num = *(int32_t*)&val;
 	this->size++;
 }
 
 inline float OperandStack::PopFloat()
 {
 	this->size--;
-	return static_cast<float >(this->slots[this->size]->num);
+	auto temp = this->slots[this->size]->num;
+	return *(float*)&temp;
 }
 
 inline void OperandStack::PushLong(int64_t val)
@@ -144,7 +150,7 @@ inline void OperandStack::PushLong(int64_t val)
 	this->size += 2;
 }
 
-inline float OperandStack::PopLong()
+inline int64_t OperandStack::PopLong()
 {
 	this->size -= 2;
 	auto low = (int64_t) this->slots[this->size]->num;
@@ -154,12 +160,17 @@ inline float OperandStack::PopLong()
 
 inline void OperandStack::PushDouble(double val)
 {
-	this->PushLong(static_cast<int64_t >(val));
+	DoubleUnion DU = {val};
+	this->PushInt(DU.storage[0]);
+	this->PushInt(DU.storage[1]);
 }
 
 inline double OperandStack::PopDouble()
 {
-	return static_cast<double >(this->PopLong());
+	DoubleUnion DU = {};
+	DU.storage[1] = this->PopInt();
+	DU.storage[0] = this->PopInt();
+	return DU.value;
 }
 
 inline void OperandStack::PushRef(Object *ref)
