@@ -7,9 +7,9 @@ void Jvm::StartJvm(std::map<std::string, docopt::value> args)
 	std::replace(target.begin(), target.end(), '.', boost::filesystem::path::preferred_separator);
 	auto cf = loadClass(target, cp);
 	printClassInfo(cf);
-	auto frame = Frame(100, 100);
-	testLocalVars(frame.localVars);
-	testOperandStack(frame.operandStack);
+	auto frame = Frame(nullptr, 100, 100);
+	testLocalVars(frame.getLocalVars());
+	testOperandStack(frame.getOperandStack());
 }
 
 ClassFile *Jvm::loadClass(std::string className, Classpath *cp)

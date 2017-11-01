@@ -33,6 +33,8 @@ class OperandStack
 	double PopDouble();
 	void PushRef(Object* ref);
 	Object* PopRef();
+	void PushSlot(Slot* slot);
+	Slot* PopSlot();
 };
 
 class LocalVars
@@ -185,6 +187,19 @@ inline Object *OperandStack::PopRef()
 	auto ref = this->slots[size]->ref;
 	this->slots[size]->ref = nullptr;
 	return ref;
+}
+
+inline void OperandStack::PushSlot(Slot *slot)
+{
+	delete this->slots[this->size];
+	this->slots[this->size] = slot;
+	this->size++;
+}
+
+inline Slot *OperandStack::PopSlot()
+{
+	this->size--;
+	return this->slots[this->size];
 }
 
 #endif //JVM_SLOT_H

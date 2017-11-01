@@ -4,8 +4,8 @@
 #include "util.h"
 #include "ClassFile.h"
 #include "classpath.h"
-#include "Frame.h"
 #include "Slot.h"
+#include "Thread.h"
 #include <iostream>
 
 class Jvm;
