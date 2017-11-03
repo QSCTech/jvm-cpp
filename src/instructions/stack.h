@@ -85,37 +85,37 @@ class POP2: public NoOperandsInstruction
 	void Execute(Frame *frame) override;
 };
 
-class DUP: NoOperandsInstruction
+class DUP: public NoOperandsInstruction
 {
   public:
 	void Execute(Frame *frame) override;
 };
 
-class DUP_X1: NoOperandsInstruction
+class DUP_X1: public NoOperandsInstruction
 {
   public:
 	void Execute(Frame *frame) override;
 };
 
-class DUP_X2: NoOperandsInstruction
+class DUP_X2: public NoOperandsInstruction
 {
   public:
 	void Execute(Frame *frame) override;
 };
 
-class DUP2: NoOperandsInstruction
+class DUP2: public NoOperandsInstruction
 {
   public:
 	void Execute(Frame *frame) override;
 };
 
-class DUP2_X1: NoOperandsInstruction
+class DUP2_X1: public NoOperandsInstruction
 {
   public:
 	void Execute(Frame *frame) override;
 };
 
-class DUP2_X2: NoOperandsInstruction
+class DUP2_X2: public NoOperandsInstruction
 {
   public:
 	void Execute(Frame *frame) override;

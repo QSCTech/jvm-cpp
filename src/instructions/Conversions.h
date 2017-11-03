@@ -24,6 +24,12 @@ class I2F;
 
 class I2L;
 
+class I2B; /* int to byte */
+
+class I2C; /* int to char */
+
+class I2S; /* int to short */
+
 class L2I;
 
 class L2F;
@@ -80,6 +86,24 @@ class I2F: public NoOperandsInstruction
 };
 
 class I2L: public NoOperandsInstruction
+{
+  public:
+	void Execute(Frame *frame) override;
+};
+
+class I2B: public NoOperandsInstruction
+{
+  public:
+	void Execute(Frame *frame) override;
+};
+
+class I2C: public NoOperandsInstruction
+{
+  public:
+	void Execute(Frame *frame) override;
+};
+
+class I2S: public NoOperandsInstruction
 {
   public:
 	void Execute(Frame *frame) override;
@@ -186,6 +210,33 @@ inline void L2I::Execute(Frame *frame)
 	auto stack = frame->getOperandStack();
 	auto val = stack->PopLong();
 	stack->PushInt((int32_t) val);
+}
+
+inline void I2B::Execute(Frame *frame)
+{
+	auto stack = frame->getOperandStack();
+	auto
+	i = stack->PopInt(),
+	b = (int32_t)((uint8_t)i);
+	stack->PushInt(b);
+}
+
+inline void I2C::Execute(Frame *frame)
+{
+	auto stack = frame->getOperandStack();
+	auto
+	i = stack->PopInt(),
+	c = (int32_t)((uint16_t)i);
+	stack->PushInt(c);
+}
+
+inline void I2S::Execute(Frame *frame)
+{
+	auto stack = frame->getOperandStack();
+	auto
+	i = stack->PopInt(),
+	s = (int32_t)((int16_t)i);
+	stack->PushInt(s);
 }
 
 #endif //JVM_CONVERSIONS_H

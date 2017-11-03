@@ -73,6 +73,14 @@ class LAND;
 
 class IINC;
 
+class IOR;
+
+class LOR;
+
+class IXOR;
+
+class LXOR;
+
 class IREM: public NoOperandsInstruction
 {
   public:
@@ -267,13 +275,36 @@ class LAND: public NoOperandsInstruction
 
 class IINC: public Instruction
 {
-	uint32_t Index;
-	int32_t Const;
   public:
+	int32_t Const;
+	uint32_t Index;
 	void FetchOperands(BytecodeReader *reader) override;
 	void Execute(Frame *frame) override;
 };
-#endif //JVM_MATHE_H
+
+class IOR: public NoOperandsInstruction
+{
+  public:
+	void Execute(Frame *frame) override;
+};
+
+class LOR: public NoOperandsInstruction
+{
+  public:
+	void Execute(Frame *frame) override;
+};
+
+class IXOR: public NoOperandsInstruction
+{
+  public:
+	void Execute(Frame *frame) override;
+};
+
+class LXOR: public NoOperandsInstruction
+{
+  public:
+	void Execute(Frame *frame) override;
+};
 
 
 inline void IREM::Execute(Frame *frame)
@@ -574,3 +605,42 @@ inline void IINC::Execute(Frame *frame)
 	auto localVals = frame->getLocalVars();
 	localVals->SetInt(this->Index, localVals->GetInt(this->Index) + this->Const);
 }
+
+inline void IOR::Execute(Frame *frame)
+{
+	auto stack = frame->getOperandStack();
+	auto
+	v2 = stack->PopInt(),
+	v1 = stack->PopInt();
+	stack->PushInt(v1 | v2);
+}
+
+inline void LOR::Execute(Frame *frame)
+{
+	auto stack = frame->getOperandStack();
+	auto
+	v2 = stack->PopLong(),
+	v1 = stack->PopLong();
+	stack->PushLong(v1 | v2);
+}
+
+inline void IXOR::Execute(Frame *frame)
+{
+	auto stack = frame->getOperandStack();
+	auto
+	v2 = stack->PopInt(),
+	v1 = stack->PopInt();
+	stack->PushInt(v1 ^ v2);
+}
+
+inline void LXOR::Execute(Frame *frame)
+{
+	auto stack = frame->getOperandStack();
+	auto
+	v2 = stack->PopLong(),
+	v1 = stack->PopLong();
+	stack->PushLong(v1 ^ v2);
+}
+
+
+#endif //JVM_MATHE_H

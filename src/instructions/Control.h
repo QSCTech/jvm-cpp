@@ -31,6 +31,22 @@ class TABLE_SWITCH: public Instruction
 	void Execute(Frame *frame) override;
 };
 
+class LOOKUP_SWITCH: public Instruction
+{
+	int32_t defaultOffset;
+	int32_t npairs;
+	std::vector<int32_t> matchOffsets;
+  public:
+	void FetchOperands(BytecodeReader *reader) override;
+	void Execute(Frame *frame) override;
+};
+
+inline void GOTO::Execute(Frame *frame)
+{
+	Branch(frame, this->Offset);
+}
+
+
 inline void TABLE_SWITCH::Execute(Frame *frame)
 {
 	auto index = frame->getOperandStack()->PopInt();

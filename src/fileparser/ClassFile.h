@@ -62,6 +62,7 @@ class ClassFile
 	: magic(0), minorVersion(0), majorVersion(0), cp(nullptr), accessFlags(0), thisClass(0), superClass(0)
 	{};
 	ParseResult Parse(std::vector<byte> classData);
+	MemberInfo* getMainMethod();
 };
 
 struct ParseResult
@@ -92,6 +93,7 @@ class MemberInfo
 	uint16_t AccessFlags();
 	std::string Name();
 	std::string Descriptor();
+	CodeAttribute* getCodeAttribute();
 };
 
 #endif

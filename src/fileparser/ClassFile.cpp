@@ -113,6 +113,19 @@ std::vector<std::string> ClassFile::InterfaceName()
 	return vec;
 }
 
+MemberInfo *ClassFile::getMainMethod()
+{
+	for(auto me : this->Methods())
+	{
+//		printf("%s: %s\n", me->Name().c_str(), me->Descriptor().c_str());
+		if(me->Name() == "main" && me->Descriptor() == "([Ljava/lang/String;)V")
+		{
+			return me;
+		}
+	}
+	return nullptr;
+}
+
 
 std::vector<MemberInfo *> MemberInfo::readMembers(ClassReader *reader, ConstantPool *constantPool)
 {
@@ -147,4 +160,16 @@ std::string MemberInfo::Name()
 std::string MemberInfo::Descriptor()
 {
 	return this->constantPool->getUtf8(this->descriptorIndex);
+}
+
+CodeAttribute *MemberInfo::getCodeAttribute()
+{
+	for (auto attrInfo : this->attributes)
+	{
+		if (attrInfo->getAttrName() == AttributeSpace::CodeATTR)
+		{
+			return (CodeAttribute *) attrInfo;
+		}
+	}
+	return nullptr;
 }

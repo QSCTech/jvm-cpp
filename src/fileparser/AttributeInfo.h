@@ -172,6 +172,11 @@ class CodeAttribute: public AttributeInfo
 	ConstantPool *cp;
 	uint16_t maxStack;
 	uint16_t maxLocals;
+  public:
+	uint16_t getMaxStack() const;
+	uint16_t getMaxLocals() const;
+	std::vector<uint8_t> getCode() const;
+  private:
 	std::vector<byte> code;
 	std::vector<ExceptionTableEntry *> exceptionTable;
 	std::vector<AttributeInfo *> attributes;
@@ -183,6 +188,21 @@ class CodeAttribute: public AttributeInfo
 	std::string getAttrName() override;
 	void readExceptionTable(ClassReader *classReader);
 };
+
+inline uint16_t CodeAttribute::getMaxStack() const
+{
+	return maxStack;
+}
+
+inline uint16_t CodeAttribute::getMaxLocals() const
+{
+	return maxLocals;
+}
+
+inline std::vector<uint8_t> CodeAttribute::getCode() const
+{
+	return code;
+}
 
 class ExceptionTableEntry
 {

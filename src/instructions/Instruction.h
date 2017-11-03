@@ -12,6 +12,8 @@ class Instruction;
 
 class NoOperandsInstruction;
 
+class NOP;
+
 class BranchInstruction;
 
 class Index8Instruction;
@@ -25,6 +27,8 @@ class BytecodeReader
 	std::vector<byte> code;
 	int pc;
   public:
+	int getPc() const;
+  public:
 	void Reset(std::vector<byte> code, int pc);
 	uint8_t ReadUint8();
 	int8_t ReadInt8();
@@ -34,17 +38,6 @@ class BytecodeReader
 	std::vector<int32_t> ReadInt32s(int32_t size);
 	void SkipPadding();
 };
-
-/**
- * @brief skip padding to keep pc % 4 == 0, but why?
- */
-inline void BytecodeReader::SkipPadding()
-{
-	while (this->pc % 4 != 0)
-	{
-		this->ReadUint8();
-	}
-}
 
 class Instruction
 {
@@ -79,6 +72,25 @@ class Index16Instruction: public Instruction
 	uint32_t Index;
 	void FetchOperands(BytecodeReader *reader) override;
 };
+
+
+class NOP: public NoOperandsInstruction
+{
+  public:
+	void Execute(Frame *frame) override;
+};
+
+/**
+ * @brief skip padding to keep pc % 4 == 0, but why?
+ */
+inline void BytecodeReader::SkipPadding()
+{
+	while (this->pc % 4 != 0)
+	{
+		this->ReadUint8();
+	}
+}
+
 
 inline void NoOperandsInstruction::FetchOperands(BytecodeReader *reader)
 {}
@@ -135,6 +147,11 @@ inline int32_t BytecodeReader::ReadInt32()
 	auto byte3 = (int32_t)this->ReadUint8();
 	auto byte4 = (int32_t)this->ReadUint8();
 	return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+}
+
+inline int BytecodeReader::getPc() const
+{
+	return pc;
 }
 
 inline void Branch(Frame *frame, int offset)

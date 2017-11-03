@@ -144,4 +144,30 @@ class JavaArithmeticException: std::exception
 	{ return errString.c_str(); }
 };
 
+class JavaInstructionException: std::exception
+{
+	std::string errString;
+  public:
+	explicit JavaInstructionException(std::string which)
+	{
+		errString = "java.lang.JavaInstructionException: " + which;
+	}
+	
+	const char *what() const throw() override
+	{ return errString.c_str(); }
+};
+
+class JavaRuntimeException: std::exception
+{
+	std::string errString;
+  public:
+	explicit JavaRuntimeException(std::string which)
+	{
+		errString = "java.lang.JavaRuntimeException: " + which;
+	}
+	
+	const char *what() const throw() override
+	{ return errString.c_str(); }
+};
+
 #endif //JVM_ERROR_H

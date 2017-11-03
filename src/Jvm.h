@@ -6,6 +6,7 @@
 #include "classpath.h"
 #include "Slot.h"
 #include "Thread.h"
+#include "Factory.h"
 #include <iostream>
 
 class Jvm;
@@ -24,6 +25,8 @@ class Jvm
 	static void printClassInfo(ClassFile *cf);
 	static void testLocalVars(LocalVars *vars);
 	static void testOperandStack(OperandStack *stack);
+	static void interpret(MemberInfo* memberInfo);
+	static void loop(Thread *thread, std::vector<byte> bytecode);
 };
 
 template<class T>

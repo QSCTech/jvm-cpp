@@ -1,5 +1,4 @@
 #include <iostream>
-#include "docopt.h"
 #include "Jvm.h"
 
 static const char USAGE[] =

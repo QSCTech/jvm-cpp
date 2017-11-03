@@ -6,10 +6,18 @@ void Jvm::StartJvm(std::map<std::string, docopt::value> args)
 	auto target = args["<target>"].asString();
 	std::replace(target.begin(), target.end(), '.', boost::filesystem::path::preferred_separator);
 	auto cf = loadClass(target, cp);
-	printClassInfo(cf);
-	auto frame = Frame(nullptr, 100, 100);
-	testLocalVars(frame.getLocalVars());
-	testOperandStack(frame.getOperandStack());
+//	printClassInfo(cf);
+//	auto frame = Frame(nullptr, 100, 100);
+//	testLocalVars(frame.getLocalVars());
+//	testOperandStack(frame.getOperandStack());
+	auto mainMethod = cf->getMainMethod();
+	if(mainMethod != nullptr)
+	{
+		interpret(mainMethod);
+	} else
+	{
+		printf("Main method not found in class %s\n", target.c_str());
+	}
 }
 
 ClassFile *Jvm::loadClass(std::string className, Classpath *cp)
@@ -74,11 +82,11 @@ void Jvm::testLocalVars(LocalVars *vars)
 	vars->SetRef(9, nullptr);
 	Test::assert_equal(100, vars->GetInt(0));
 	Test::assert_equal(-100, vars->GetInt(1));
-	Test::assert_equal<int64_t >(1312413413, vars->GetLong(2));
-	Test::assert_equal<int64_t >(-1312413413, vars->GetLong(4));
-	Test::assert_equal<float >(3.141592, vars->GetFloat(6));
-	Test::assert_equal<double >(2.412414151351255125, vars->GetDouble(7));
-	Test::assert_equal<Object*>(nullptr, vars->GetRef(9));
+	Test::assert_equal<int64_t>(1312413413, vars->GetLong(2));
+	Test::assert_equal<int64_t>(-1312413413, vars->GetLong(4));
+	Test::assert_equal<float>(3.141592, vars->GetFloat(6));
+	Test::assert_equal<double>(2.412414151351255125, vars->GetDouble(7));
+	Test::assert_equal<Object *>(nullptr, vars->GetRef(9));
 }
 
 void Jvm::testOperandStack(OperandStack *stack)
@@ -90,11 +98,47 @@ void Jvm::testOperandStack(OperandStack *stack)
 	stack->PushFloat(3.141592);
 	stack->PushDouble(2.412414151351255125);
 	stack->PushRef(nullptr);
-	Test::assert_equal<Object*>(nullptr, stack->PopRef());
-	Test::assert_equal<double >(2.412414151351255125, stack->PopDouble());
-	Test::assert_equal<float >(3.141592, stack->PopFloat());
-	Test::assert_equal<int64_t >(-1312413413, stack->PopLong());
-	Test::assert_equal<int64_t >(1312413413, stack->PopLong());
+	Test::assert_equal<Object *>(nullptr, stack->PopRef());
+	Test::assert_equal<double>(2.412414151351255125, stack->PopDouble());
+	Test::assert_equal<float>(3.141592, stack->PopFloat());
+	Test::assert_equal<int64_t>(-1312413413, stack->PopLong());
+	Test::assert_equal<int64_t>(1312413413, stack->PopLong());
 	Test::assert_equal(-100, stack->PopInt());
 	Test::assert_equal(100, stack->PopInt());
+}
+
+void Jvm::interpret(MemberInfo *memberInfo)
+{
+	auto codeAttr = memberInfo->getCodeAttribute();
+	auto maxLocals = codeAttr->getMaxLocals();
+	auto maxStacks = codeAttr->getMaxStack();
+	auto bytecode = codeAttr->getCode();
+	auto thread = new Thread(1024);
+	auto frame = new Frame(thread, maxLocals, maxStacks);
+	try
+	{
+		thread->PushFrame(frame);
+		loop(thread, bytecode);
+	} catch (JavaRuntimeException& err)
+	{
+		printf("%s", err.what());
+	}
+}
+
+void Jvm::loop(Thread *thread, std::vector<byte> bytecode)
+{
+	auto frame = thread->PopFrame();
+	auto reader = new BytecodeReader();
+	while (true)
+	{
+		auto pc = frame->getNextPc();
+		reader->Reset(bytecode, pc);
+		auto opcode = reader->ReadUint8();
+//		printf("%d\n", reader->getPc());
+		auto inst = Factory::NewInstruction(opcode);
+		inst->FetchOperands(reader);
+		frame->setNextPc(reader->getPc());
+		printf("pc: %2d, inst: %X\n", pc, opcode);
+		inst->Execute(frame);
+	}
 }

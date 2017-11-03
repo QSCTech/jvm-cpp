@@ -13,3 +13,6 @@ std::vector<int32_t> BytecodeReader::ReadInt32s(int32_t size)
 	}
 	return vec;
 }
+
+void NOP::Execute(Frame *frame)
+{}
