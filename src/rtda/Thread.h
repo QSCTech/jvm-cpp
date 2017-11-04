@@ -7,6 +7,15 @@
 #include "error.h"
 #include "Slot.h"
 
+/*
+JVM
+  Thread
+    pc
+    Stack
+      Frame
+        LocalVars
+        OperandStack
+*/
 class Thread;
 
 class Stack;

@@ -20,6 +20,8 @@ auto Factory::fconst_1 = new FCONST_1();
 auto Factory::fconst_2 = new FCONST_2();
 auto Factory::dconst_0 = new DCONST_0();
 auto Factory::dconst_1 = new DCONST_1();
+auto Factory::bipush = new BIPUSH();
+auto Factory::sipush = new SIPUSH();
 auto Factory::iload = new ILOAD();
 auto Factory::iload_0 = new ILOAD_0();
 auto Factory::iload_1 = new ILOAD_1();
@@ -220,10 +222,10 @@ Instruction *Factory::NewInstruction(uint8_t opcode)
 			return dconst_0;
 		case 0x0f:
 			return dconst_1;
-//		case 0x10:
-//			return &BIPUSH{};
-//		case 0x11:
-//			return &SIPUSH{};
+		case 0x10:
+			return bipush;
+		case 0x11:
+			return sipush;
 			// case 0x12:
 			// 	return &LDC{};
 			// case 0x13:

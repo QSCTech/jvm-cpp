@@ -97,7 +97,7 @@ inline void NoOperandsInstruction::FetchOperands(BytecodeReader *reader)
 
 inline void BranchInstruction::FetchOperands(BytecodeReader *reader)
 {
-	this->Offset = (int32_t)reader->ReadUint16();
+	this->Offset = (int32_t)reader->ReadInt16();
 }
 
 inline void Index8Instruction::FetchOperands(BytecodeReader *reader)

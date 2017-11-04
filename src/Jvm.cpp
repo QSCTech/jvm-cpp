@@ -129,6 +129,10 @@ void Jvm::interpret(MemberInfo *memberInfo)
 	} catch (JavaRuntimeException &err)
 	{
 		printf("%s", err.what());
+		for(auto s : frame->getLocalVars()->slots)
+		{
+			printf("\nnum: %d, ref: %p\n", s->num, s->ref);
+		}
 	}
 }
 
@@ -141,6 +145,7 @@ void Jvm::loop(Thread *thread, std::vector<byte> bytecode)
 	{
 		printf("frame.getPc: %d\n", frame->getNextPc());
 		pc = frame->getNextPc();
+		thread->setPc(pc);
 		reader->Reset(bytecode, pc);
 		auto opcode = reader->ReadUint8();
 		printf("%X\n", opcode);

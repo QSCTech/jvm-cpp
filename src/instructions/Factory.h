@@ -33,6 +33,8 @@ namespace Factory
 	extern FCONST_2 *fconst_2;
 	extern DCONST_0 *dconst_0;
 	extern DCONST_1 *dconst_1;
+	extern BIPUSH *bipush;
+	extern SIPUSH *sipush;
 	extern ILOAD *iload;
 	extern ILOAD_0 *iload_0;
 	extern ILOAD_1 *iload_1;
