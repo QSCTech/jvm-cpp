@@ -43,6 +43,7 @@ class LOOKUP_SWITCH: public Instruction
 
 inline void GOTO::Execute(Frame *frame)
 {
+	printf("GOTO.Offset: %d\n", this->Offset);
 	Branch(frame, this->Offset);
 }
 

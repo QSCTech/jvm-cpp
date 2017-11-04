@@ -11,7 +11,7 @@ void Jvm::StartJvm(std::map<std::string, docopt::value> args)
 //	testLocalVars(frame.getLocalVars());
 //	testOperandStack(frame.getOperandStack());
 	auto mainMethod = cf->getMainMethod();
-	if(mainMethod != nullptr)
+	if (mainMethod != nullptr)
 	{
 		interpret(mainMethod);
 	} else
@@ -113,13 +113,20 @@ void Jvm::interpret(MemberInfo *memberInfo)
 	auto maxLocals = codeAttr->getMaxLocals();
 	auto maxStacks = codeAttr->getMaxStack();
 	auto bytecode = codeAttr->getCode();
+	
+	std::cout << "bytecode(" << bytecode.size() << "): " << std::endl;
+	for (auto i: bytecode)
+	{
+		printf("%X", i);
+	}
+	printf("\n");
 	auto thread = new Thread(1024);
 	auto frame = new Frame(thread, maxLocals, maxStacks);
 	try
 	{
 		thread->PushFrame(frame);
 		loop(thread, bytecode);
-	} catch (JavaRuntimeException& err)
+	} catch (JavaRuntimeException &err)
 	{
 		printf("%s", err.what());
 	}
@@ -127,18 +134,22 @@ void Jvm::interpret(MemberInfo *memberInfo)
 
 void Jvm::loop(Thread *thread, std::vector<byte> bytecode)
 {
+	int32_t pc;
 	auto frame = thread->PopFrame();
 	auto reader = new BytecodeReader();
 	while (true)
 	{
-		auto pc = frame->getNextPc();
+		printf("frame.getPc: %d\n", frame->getNextPc());
+		pc = frame->getNextPc();
 		reader->Reset(bytecode, pc);
 		auto opcode = reader->ReadUint8();
+		printf("%X\n", opcode);
 //		printf("%d\n", reader->getPc());
 		auto inst = Factory::NewInstruction(opcode);
 		inst->FetchOperands(reader);
+		printf("reader.getPc: %d\n", reader->getPc());
 		frame->setNextPc(reader->getPc());
-		printf("pc: %2d, inst: %X\n", pc, opcode);
+//		printf("pc: %2d, inst: %X\n", pc, opcode);
 		inst->Execute(frame);
 	}
 }

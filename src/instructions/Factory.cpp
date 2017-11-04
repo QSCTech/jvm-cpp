@@ -596,7 +596,7 @@ Instruction *Factory::NewInstruction(uint8_t opcode)
 			// case 0xfe: impdep1
 			// case 0xff: impdep2
 		default:
-			throw JavaRuntimeException("Unsupported opcode: " + opcode);
+			throw JavaRuntimeException("Unsupported opcode: " + std::to_string(opcode));
 	}
 	
 }

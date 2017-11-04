@@ -29,7 +29,7 @@ class BytecodeReader
   public:
 	int getPc() const;
   public:
-	void Reset(std::vector<byte> code, int pc);
+	void Reset(const std::vector<byte> &code, int pc);
 	uint8_t ReadUint8();
 	int8_t ReadInt8();
 	uint16_t ReadUint16();
@@ -97,7 +97,7 @@ inline void NoOperandsInstruction::FetchOperands(BytecodeReader *reader)
 
 inline void BranchInstruction::FetchOperands(BytecodeReader *reader)
 {
-	this->Offset = (int32_t)reader->ReadInt16();
+	this->Offset = (int32_t)reader->ReadUint16();
 }
 
 inline void Index8Instruction::FetchOperands(BytecodeReader *reader)
@@ -110,7 +110,7 @@ inline void Index16Instruction::FetchOperands(BytecodeReader *reader)
 	this->Index = (uint32_t)reader->ReadUint16();
 }
 
-inline void BytecodeReader::Reset(std::vector<byte> code, int pc)
+inline void BytecodeReader::Reset(const std::vector<byte> &code, int pc)
 {
 	this->code = code;
 	this->pc = pc;
@@ -118,6 +118,7 @@ inline void BytecodeReader::Reset(std::vector<byte> code, int pc)
 
 inline uint8_t BytecodeReader::ReadUint8()
 {
+	printf("pc: %d\n", this->pc);
 	auto i = this->code[this->pc];
 	this->pc++;
 	return i;
