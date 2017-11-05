@@ -4,8 +4,8 @@
 
 #ifndef JVM_THREAD_H
 #define JVM_THREAD_H
-#include "error.h"
-#include "Slot.h"
+#include "error.hpp"
+#include "Slot.hpp"
 
 /*
 JVM

@@ -1,4 +1,4 @@
-#include "Jvm.h"
+#include "Jvm.hpp"
 
 void Jvm::StartJvm(std::map<std::string, docopt::value> args)
 {

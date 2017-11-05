@@ -4,8 +4,8 @@
 
 #ifndef JVM_INSTRUCTION_H
 #define JVM_INSTRUCTION_H
-#include "Thread.h"
-#include "util.h"
+#include "Thread.hpp"
+#include "util.hpp"
 class BytecodeReader;
 
 class Instruction;

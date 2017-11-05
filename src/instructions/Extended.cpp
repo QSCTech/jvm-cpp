@@ -2,10 +2,10 @@
 // Created by 李晨曦 on 01/11/2017.
 //
 
-#include "Extended.h"
-#include "Loads.h"
-#include "Store.h"
-#include "Mathe.h"
+#include "Extended.hpp"
+#include "Loads.hpp"
+#include "Store.hpp"
+#include "Mathe.hpp"
 
 void WIDE::FetchOperands(BytecodeReader *reader)
 {

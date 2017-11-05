@@ -4,7 +4,7 @@
 
 #ifndef JVM_EXTENDED_H
 #define JVM_EXTENDED_H
-#include "Instruction.h"
+#include "Instruction.hpp"
 
 /**
  * @brief Wider index long

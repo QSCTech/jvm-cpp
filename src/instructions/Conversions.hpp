@@ -4,7 +4,7 @@
 
 #ifndef JVM_CONVERSIONS_H
 #define JVM_CONVERSIONS_H
-#include "Instruction.h"
+#include "Instruction.hpp"
 
 class D2F;
 

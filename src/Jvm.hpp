@@ -1,12 +1,12 @@
 #ifndef JVM_JVM_H
 #define JVM_JVM_H
 #include "docopt.h"
-#include "util.h"
-#include "ClassFile.h"
-#include "classpath.h"
-#include "Slot.h"
-#include "Thread.h"
-#include "Factory.h"
+#include "util.hpp"
+#include "ClassFile.hpp"
+#include "classpath.hpp"
+#include "Slot.hpp"
+#include "Thread.hpp"
+#include "Factory.hpp"
 #include <iostream>
 
 class Jvm;

@@ -4,7 +4,7 @@
 
 #ifndef JVM_STORE_H
 #define JVM_STORE_H
-#include "Instruction.h"
+#include "Instruction.hpp"
 
 class LSTORE;
 

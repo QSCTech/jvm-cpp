@@ -2,7 +2,7 @@
 // Created by 李晨曦 on 01/11/2017.
 //
 
-#include "Control.h"
+#include "Control.hpp"
 void TABLE_SWITCH::FetchOperands(BytecodeReader *reader)
 {
 	reader->SkipPadding();

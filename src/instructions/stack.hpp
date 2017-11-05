@@ -4,7 +4,7 @@
 
 #ifndef JVM_STACK_H
 #define JVM_STACK_H
-#include "Instruction.h"
+#include "Instruction.hpp"
 
 class POP;
 

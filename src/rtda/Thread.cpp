@@ -2,7 +2,7 @@
 // Created by 李晨曦 on 30/10/2017.
 //
 
-#include "Thread.h"
+#include "Thread.hpp"
 
 Thread::Thread(int frameMax) : stack(new Stack(frameMax)), pc(0)
 {}

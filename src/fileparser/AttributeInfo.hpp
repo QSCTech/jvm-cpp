@@ -4,8 +4,8 @@
 
 #ifndef JVM_ATTRIBUTEINFO_H
 #define JVM_ATTRIBUTEINFO_H
-#include "ClassReader.h"
-#include "ConstantPool.h"
+#include "ClassReader.hpp"
+#include "ConstantPool.hpp"
 #include <vector>
 
 /*

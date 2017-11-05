@@ -2,7 +2,7 @@
 // Created by 李晨曦 on 01/11/2017.
 //
 
-#include "Instruction.h"
+#include "Instruction.hpp"
 
 std::vector<int32_t> BytecodeReader::ReadInt32s(int32_t size)
 {

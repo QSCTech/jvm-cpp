@@ -2,7 +2,7 @@
 // Created by 李晨曦 on 30/10/2017.
 //
 
-#include "Slot.h"
+#include "Slot.hpp"
 
 Slot::Slot(int32_t num, Object *ref) : num(num), ref(ref)
 {}

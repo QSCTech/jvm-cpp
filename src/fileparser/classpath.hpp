@@ -4,7 +4,7 @@
 #include <string>
 #include <boost/filesystem.hpp>
 #include "docopt.h"
-#include "util.h"
+#include "util.hpp"
 
 class Entry;
 

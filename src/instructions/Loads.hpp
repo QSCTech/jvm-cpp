@@ -4,7 +4,7 @@
 
 #ifndef JVM_LOADS_H
 #define JVM_LOADS_H
-#include "Instruction.h"
+#include "Instruction.hpp"
 
 class ILOAD;
 

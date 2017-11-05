@@ -4,7 +4,7 @@
 
 #ifndef JVM_CONSTANTS_H
 #define JVM_CONSTANTS_H
-#include "Instruction.h"
+#include "Instruction.hpp"
 class ACONST_NULL;
 
 class DCONST_0;

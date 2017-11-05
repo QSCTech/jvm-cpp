@@ -1,5 +1,5 @@
 #include <vector>
-#include "util.h"
+#include "util.hpp"
 
 ReadResult util::ReadAllBytes(std::string filename)
 {

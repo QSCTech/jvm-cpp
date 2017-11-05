@@ -4,7 +4,7 @@
 
 #ifndef JVM_COMPARISONS_H
 #define JVM_COMPARISONS_H
-#include "Instruction.h"
+#include "Instruction.hpp"
 
 class LCMP;
 

@@ -4,7 +4,7 @@
 
 #ifndef JVM_MATHE_H
 #define JVM_MATHE_H
-#include "Instruction.h"
+#include "Instruction.hpp"
 #include <cmath>
 
 class DADD;

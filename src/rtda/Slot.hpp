@@ -2,7 +2,7 @@
 #define JVM_SLOT_H
 #include <cstdint>
 #include <vector>
-#include "Object.h"
+#include "Object.hpp"
 class Slot;
 
 class LocalVars;

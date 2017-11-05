@@ -1,8 +1,8 @@
 #ifndef JVM_CLASSFILE_H
 #define JVM_CLASSFILE_H
-#include "util.h"
-#include "ConstantPool.h"
-#include "AttributeInfo.h"
+#include "util.hpp"
+#include "ConstantPool.hpp"
+#include "AttributeInfo.hpp"
 #include <map>
 
 /*

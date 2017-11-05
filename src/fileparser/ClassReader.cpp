@@ -1,4 +1,4 @@
-#include "ClassReader.h"
+#include "ClassReader.hpp"
 
 uint8_t ClassReader::readUint8()
 {

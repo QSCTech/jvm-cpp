@@ -4,7 +4,7 @@
 
 #ifndef JVM_CONTROL_H
 #define JVM_CONTROL_H
-#include "Instruction.h"
+#include "Instruction.hpp"
 
 class GOTO;
 

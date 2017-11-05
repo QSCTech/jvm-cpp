@@ -2,7 +2,7 @@
 // Created by 李晨曦 on 29/10/2017.
 //
 
-#include "AttributeInfo.h"
+#include "AttributeInfo.hpp"
 
 AttributeInfo *AttributeSpace::readAttribute(ClassReader *reader, ConstantPool *cp)
 {

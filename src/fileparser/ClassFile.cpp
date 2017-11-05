@@ -1,4 +1,4 @@
-#include "ClassFile.h"
+#include "ClassFile.hpp"
 
 ParseResult ClassFile::Parse(std::vector<byte> classData)
 {

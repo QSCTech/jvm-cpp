@@ -4,16 +4,16 @@
 
 #ifndef JVM_FACTORY_H
 #define JVM_FACTORY_H
-#include "Instruction.h"
-#include "Comparisons.h"
-#include "Constants.h"
-#include "Control.h"
-#include "Conversions.h"
-#include "Extended.h"
-#include "Loads.h"
-#include "Mathe.h"
-#include "stack.h"
-#include "Store.h"
+#include "Instruction.hpp"
+#include "Comparisons.hpp"
+#include "Constants.hpp"
+#include "Control.hpp"
+#include "Conversions.hpp"
+#include "Extended.hpp"
+#include "Loads.hpp"
+#include "Mathe.hpp"
+#include "stack.hpp"
+#include "Store.hpp"
 
 namespace Factory
 {

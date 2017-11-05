@@ -1,6 +1,6 @@
 #ifndef JVM_CLASSREADER_H
 #define JVM_CLASSREADER_H
-#include "util.h"
+#include "util.hpp"
 
 class ClassReader
 {

@@ -6,7 +6,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include "error.h"
+#include "error.hpp"
 struct ReadResult
 {
 	std::vector<byte> data;
