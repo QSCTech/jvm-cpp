@@ -147,7 +147,7 @@ inline void DUP::Execute(Frame *frame)
 	auto stack = frame->getOperandStack();
 	auto slot = stack->PopSlot();
 	stack->PushSlot(slot);
-	auto newSlot = new Slot(slot->num, slot->ref);
+	auto newSlot = new Slot(slot->ref);
 	stack->PushSlot(newSlot);
 }
 
@@ -156,7 +156,7 @@ inline void DUP_X1::Execute(Frame *frame)
 	auto stack = frame->getOperandStack();
 	auto slot1 = stack->PopSlot();
 	auto slot2 = stack->PopSlot();
-	auto newSlot = new Slot(slot1->num, slot1->ref);
+	auto newSlot = new Slot(slot1->ref);
 	stack->PushSlot(newSlot);
 	stack->PushSlot(slot2);
 	stack->PushSlot(slot1);
@@ -168,7 +168,7 @@ inline void DUP_X2::Execute(Frame *frame)
 	auto slot1 = stack->PopSlot();
 	auto slot2 = stack->PopSlot();
 	auto slot3 = stack->PopSlot();
-	auto newSlot = new Slot(slot1->num, slot1->ref);
+	auto newSlot = new Slot(slot1->ref);
 	stack->PushSlot(newSlot);
 	stack->PushSlot(slot3);
 	stack->PushSlot(slot2);
@@ -182,8 +182,8 @@ inline void DUP2::Execute(Frame *frame)
 	auto slot2 = stack->PopSlot();
 	stack->PushSlot(slot2);
 	stack->PushSlot(slot1);
-	auto newSlot1 = new Slot(slot1->num, slot1->ref);
-	auto newSlot2 = new Slot(slot2->num, slot2->ref);
+	auto newSlot1 = new Slot(slot1->ref);
+	auto newSlot2 = new Slot(slot2->ref);
 	stack->PushSlot(newSlot2);
 	stack->PushSlot(newSlot1);
 }
@@ -194,8 +194,8 @@ inline void DUP2_X1::Execute(Frame *frame)
 	auto slot1 = stack->PopSlot();
 	auto slot2 = stack->PopSlot();
 	auto slot3 = stack->PopSlot();
-	auto newSlot1 = new Slot(slot1->num, slot1->ref);
-	auto newSlot2 = new Slot(slot2->num, slot2->ref);
+	auto newSlot1 = new Slot(slot1->ref);
+	auto newSlot2 = new Slot(slot2->ref);
 	stack->PushSlot(newSlot2);
 	stack->PushSlot(newSlot1);
 	stack->PushSlot(slot3);
@@ -210,8 +210,8 @@ inline void DUP2_X2::Execute(Frame *frame)
 	auto slot2 = stack->PopSlot();
 	auto slot3 = stack->PopSlot();
 	auto slot4 = stack->PopSlot();
-	auto newSlot1 = new Slot(slot1->num, slot1->ref);
-	auto newSlot2 = new Slot(slot2->num, slot2->ref);
+	auto newSlot1 = new Slot(slot1->ref);
+	auto newSlot2 = new Slot(slot2->ref);
 	stack->PushSlot(newSlot2);
 	stack->PushSlot(newSlot1);
 	stack->PushSlot(slot4);

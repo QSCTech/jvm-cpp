@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include "Object.hpp"
-class Slot;
+union Slot;
 
 class LocalVars;
 
@@ -54,12 +54,13 @@ class LocalVars
 	Object* GetRef(uint32_t index);
 };
 
-class Slot
+union Slot
 {
   public:
 	int32_t num;
 	Object* ref;
-	Slot(int32_t num, Object *ref);
+	explicit Slot(int32_t num);
+	explicit Slot(Object *ref);
 };
 
 inline void LocalVars::SetInt(uint32_t index, int32_t val)
