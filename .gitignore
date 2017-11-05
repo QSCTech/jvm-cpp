@@ -10,3 +10,7 @@ jvm
 *.class
 *.jar
 test*
+regress/
+*.cmake
+*.zip
+*.bak
