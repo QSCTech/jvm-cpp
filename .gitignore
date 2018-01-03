@@ -16,3 +16,4 @@ regress/
 *.bak
 libs/docopt
 libs/libzip
+jvm.dSYM/
