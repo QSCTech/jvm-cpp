@@ -7,7 +7,6 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include "ConstantPool.hpp"
 #include "Slot.hpp"
 #include "ClassFile.hpp"
 #include "AccessFlags.hpp"
@@ -76,6 +75,9 @@ class Method: public ClassMember
 	Method(MemberInfo *memberInfo,
 	Class *belongClass);
 };
+
+
+class ClassLoader{};
 
 
 inline bool Class::IsPublic()

@@ -7,7 +7,7 @@
 #include "util.hpp"
 #include "ClassReader.hpp"
 #include <iostream>
-#include <ctype.h>
+#include <cctype>
 #include <map>
 
 class ConstantInfo;
@@ -26,15 +26,13 @@ class ConstantStringInfo;
 
 class ConstantClassInfo;
 
-/**
- * class ConstantFieldrefInfo;
- *
- *class ConstantMethodrefInfo;
- *
- *class ConstantInterfaceMethodrefInfo;
-*/
-
 class ConstantMemberrefInfo;
+
+using ConstantFieldrefInfo = ConstantMemberrefInfo;
+
+using ConstantMethodrefInfo = ConstantMemberrefInfo;
+
+using ConstantInterfaceMethodrefInfo = ConstantMemberrefInfo;
 
 class ConstantNameAndTypeInfo;
 
@@ -61,6 +59,7 @@ class ConstantIntegerInfo: public ConstantInfo
 	{};
 	uint8_t getTag() override;
 	void readInfo(ClassReader *reader) override;
+	int32_t getValue();
 };
 
 class ConstantFloatInfo: public ConstantInfo
@@ -71,6 +70,7 @@ class ConstantFloatInfo: public ConstantInfo
 	{};
 	uint8_t getTag() override;
 	void readInfo(ClassReader *reader) override;
+	float getValue() const;
 };
 
 class ConstantLongInfo: public ConstantInfo
@@ -81,6 +81,7 @@ class ConstantLongInfo: public ConstantInfo
 	{};
 	uint8_t getTag() override;
 	void readInfo(ClassReader *reader) override;
+	int64_t getValue();
 };
 
 class ConstantDoubleInfo: public ConstantInfo
@@ -91,16 +92,18 @@ class ConstantDoubleInfo: public ConstantInfo
 	{};
 	uint8_t getTag() override;
 	void readInfo(ClassReader *reader) override;
+	double getValue() const;
 };
 
 class ConstantUtf8Info: public ConstantInfo
 {
+	std::string value;
   public:
 	explicit ConstantUtf8Info() : value("")
 	{};
 	uint8_t getTag() override;
 	void readInfo(ClassReader *reader) override;
-	std::string value;
+	std::string getValue();
 };
 
 class ConstantStringInfo: public ConstantInfo
@@ -186,7 +189,7 @@ class ConstantMemberrefInfo: public ConstantInfo
 	uint8_t getTag() override;
 	void readInfo(ClassReader *reader) override;
 	std::string ClassName();
-	std::map<std::string, std::string> NameAndType(uint16_t index);
+	std::map<std::string, std::string> NameAndType();
 };
 
 namespace ConstantInfoSpace

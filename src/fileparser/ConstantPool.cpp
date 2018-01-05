@@ -99,7 +99,7 @@ std::string ConstantPool::getClassName(uint16_t index)
 std::string ConstantPool::getUtf8(uint16_t index)
 {
 	auto info = (ConstantUtf8Info *) this->getConstantInfo(index);
-	return info->value;
+	return info->getValue();
 }
 
 uint8_t ConstantIntegerInfo::getTag()
@@ -112,6 +112,11 @@ void ConstantIntegerInfo::readInfo(ClassReader *reader)
 	this->value = (int32_t) reader->readUint32();
 }
 
+int32_t ConstantIntegerInfo::getValue()
+{
+	return value;
+}
+
 uint8_t ConstantFloatInfo::getTag()
 {
 	return ConstantInfoSpace::CONSTANT_Float;
@@ -120,6 +125,11 @@ uint8_t ConstantFloatInfo::getTag()
 void ConstantFloatInfo::readInfo(ClassReader *reader)
 {
 	this->value = (float) reader->readUint32();
+}
+
+float ConstantFloatInfo::getValue() const
+{
+	return value;
 }
 
 uint8_t ConstantLongInfo::getTag()
@@ -132,6 +142,11 @@ void ConstantLongInfo::readInfo(ClassReader *reader)
 	this->value = (int64_t) reader->readUint64();
 }
 
+int64_t ConstantLongInfo::getValue()
+{
+	return value;
+}
+
 uint8_t ConstantDoubleInfo::getTag()
 {
 	return ConstantInfoSpace::CONSTANT_Double;
@@ -140,6 +155,11 @@ uint8_t ConstantDoubleInfo::getTag()
 void ConstantDoubleInfo::readInfo(ClassReader *reader)
 {
 	this->value = (double) reader->readUint64();
+}
+
+double ConstantDoubleInfo::getValue() const
+{
+	return value;
 }
 
 uint8_t ConstantUtf8Info::getTag()
@@ -234,6 +254,11 @@ void ConstantUtf8Info::readInfo(ClassReader *reader)
 	this->value = ConstantInfoSpace::decodeMUTF8(bytes);
 }
 
+std::string ConstantUtf8Info::getValue()
+{
+	return value;
+}
+
 uint8_t ConstantStringInfo::getTag()
 {
 	return ConstantInfoSpace::CONSTANT_String;
@@ -291,7 +316,7 @@ std::string ConstantMemberrefInfo::ClassName()
 	return this->cp->getClassName(this->classIndex);
 }
 
-std::map<std::string, std::string> ConstantMemberrefInfo::NameAndType(uint16_t index)
+std::map<std::string, std::string> ConstantMemberrefInfo::NameAndType()
 {
 	return this->cp->getNameAndType(this->nameAndTypeIndex);
 };
