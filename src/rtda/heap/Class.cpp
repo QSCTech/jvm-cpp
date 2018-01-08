@@ -8,7 +8,7 @@ std::string ObjectClass = "java/lang/Object";
 
 Class::Class(ClassFile *cf)
 : accessFlag(cf->AccessFlags()), name(cf->ClassName()), superClassName(cf->SuperClassName()),
-  interfaceNames(cf->InterfaceName()),
+  interfaceNames(cf->InterfaceName()), superClass(nullptr),
   constantPool(cf->GetConstantPool()), fields(load<Field>(cf->Fields())), methods(load<Method>(cf->Methods()))
 {}
 
@@ -20,12 +20,14 @@ ClassMember::ClassMember(MemberInfo *memberInfo, Class *belongClass)
 Field::Field(MemberInfo *memberInfo, Class *belongClass) : ClassMember(memberInfo, belongClass)
 {}
 
+
 Method::Method(MemberInfo *memberInfo,
 Class *belongClass
 ) : ClassMember(memberInfo, belongClass), maxStack(memberInfo->getCodeAttribute()->getMaxStack()),
     maxLocals(memberInfo->getCodeAttribute()->getMaxLocals()),
     code(memberInfo->getCodeAttribute()->getCode())
 {}
+
 
 ClassLoader::ClassLoader(Classpath *cp) : cp(cp), classMap(std::map<std::string, Class *>())
 {}
@@ -122,8 +124,12 @@ void ClassLoader::prepare(Class *newClass)
 void ClassLoader::calcInstanceFieldSlotsId(Class *newClass)
 {
 	uint32_t slotId = 0;
-	if (newClass->getSuperClass() != nullptr) {
-	
+	if (newClass->getSuperClass() != nullptr)
+	{
+		auto slotID = newClass->getSuperClass()->getInstanceSlotCount();
+	}
+	for (auto field: newClass->getFields()) {
+		if !field.
 	}
 }
 

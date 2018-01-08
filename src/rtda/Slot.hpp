@@ -3,10 +3,6 @@
 #include <cstdint>
 #include <vector>
 #include "Class.hpp"
-union Slot;
-
-class LocalVars;
-
 class OperandStack;
 
 class OperandStack
@@ -29,89 +25,6 @@ class OperandStack
 	Slot* PopSlot();
 };
 
-class LocalVars
-{
-  public:
-	std::vector<Slot* > slots;
-	explicit LocalVars(uint32_t maxLocals);
-	void SetInt(uint32_t index, int32_t val);
-	int32_t GetInt(uint32_t index);
-	void SetFloat(uint32_t index, float val);
-	float GetFloat(uint32_t index);
-	void SetLong(uint32_t index, int64_t val);
-	int64_t GetLong(uint32_t index);
-	void SetDouble(uint32_t index, double val);
-	double GetDouble(uint32_t index);
-	void SetRef(uint32_t index, Object* ref);
-	Object* GetRef(uint32_t index);
-};
-
-union Slot
-{
-  public:
-	int32_t num;
-	Object* ref;
-	explicit Slot(int32_t num);
-	explicit Slot(Object *ref);
-};
-
-inline void LocalVars::SetInt(uint32_t index, int32_t val)
-{
-	this->slots[index]->num = val;
-}
-
-inline int32_t LocalVars::GetInt(uint32_t index)
-{
-	return this->slots[index]->num;
-}
-
-inline void LocalVars::SetFloat(uint32_t index, float val)
-{
-	this->slots[index]->num = *(int *) (&val);
-}
-
-inline float LocalVars::GetFloat(uint32_t index)
-{
-	return *(float *) &(this->slots[index]->num);
-}
-
-inline void LocalVars::SetLong(uint32_t index, int64_t val)
-{
-	this->slots[index]->num = (int32_t) val;
-	this->slots[index + 1]->num = (int32_t) (val >> 32);
-}
-
-inline int64_t LocalVars::GetLong(uint32_t index)
-{
-	auto low = (int64_t) (this->slots[index]->num);
-	auto high = (int64_t) (this->slots[index + 1]->num);
-	return high << 32 | low;
-}
-
-inline void LocalVars::SetDouble(uint32_t index, double val)
-{
-	DoubleUnion DU = {val};
-	this->SetInt(index, DU.storage[0]);
-	this->SetInt(index + 1, DU.storage[1]);
-}
-
-inline double LocalVars::GetDouble(uint32_t index)
-{
-	DoubleUnion DU = {};
-	DU.storage[0] = this->GetInt(index);
-	DU.storage[1] = this->GetInt(index+1);
-	return DU.value;
-}
-
-inline void LocalVars::SetRef(uint32_t index, Object *ref)
-{
-	this->slots[index]->ref = ref;
-}
-
-inline Object *LocalVars::GetRef(uint32_t index)
-{
-	return this->slots[index]->ref;
-}
 
 inline void OperandStack::PushInt(int32_t val)
 {
