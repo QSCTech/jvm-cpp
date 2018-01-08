@@ -7,8 +7,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <fileparser/classpath.hpp>
-#include "Slot.hpp"
+#include "classpath.hpp"
 #include "ClassFile.hpp"
 #include "AccessFlags.hpp"
 
@@ -23,6 +22,14 @@ class Method;
 class ClassLoader;
 
 extern std::string ObjectClass;
+
+class Object;
+
+union DoubleUnion;
+
+union Slot;
+
+class Slots;
 
 class Class
 {
@@ -39,7 +46,7 @@ class Class
 	uint32_t getInstanceSlotCount() const;
 	void setSuperClass(Class *superClass);
 	uint32_t getStaticSlotCount() const;
-	Slot *getStaticVars() const;
+	Slots *getStaticVars() const;
   private:
 	uint16_t accessFlag;
 	std::string name;
@@ -59,7 +66,7 @@ class Class
   private:
 	uint32_t instanceSlotCount;
 	uint32_t staticSlotCount;
-	Slot *staticVars;
+	Slots *staticVars;
 	template<class T>
 	std::vector<T *> load(std::vector<MemberInfo *>);
   public:
@@ -88,6 +95,7 @@ class ClassMember
 class Field: public ClassMember
 {
   public:
+	uint32_t slotId;
 	Field(MemberInfo *memberInfo, Class *belongClass);
 };
 
@@ -115,9 +123,24 @@ class ClassLoader
   public:
 	explicit ClassLoader(Classpath *cp);
 	Class *LoadClass(std::string className);
-	static void link(Class* newClass);
-	static void verify(Class* newClass);
-	static void prepare(Class* newClass);
+	static void link(Class *newClass);
+	static void verify(Class *newClass);
+	static void prepare(Class *newClass);
+	static void calcInstanceFieldSlotsId(Class *newClass);
+	static void calcStaticFieldSlotsId(Class *newClass);
+	static void allocAndInitStaticVars(Class *newClass);
+};
+
+class Object
+{
+	Class *ownClass;
+	Slots fields;
+};
+
+union DoubleUnion
+{
+	double value;
+	int32_t storage[2];
 };
 
 
@@ -237,7 +260,7 @@ inline uint32_t Class::getStaticSlotCount() const
 	return staticSlotCount;
 }
 
-inline Slot *Class::getStaticVars() const
+inline Slots *Class::getStaticVars() const
 {
 	return staticVars;
 }

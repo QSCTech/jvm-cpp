@@ -2,20 +2,12 @@
 #define JVM_SLOT_H
 #include <cstdint>
 #include <vector>
-#include "Object.hpp"
+#include "Class.hpp"
 union Slot;
 
 class LocalVars;
 
 class OperandStack;
-
-union DoubleUnion;
-
-union DoubleUnion
-{
-	double value;
-	int32_t storage[2];
-};
 
 class OperandStack
 {

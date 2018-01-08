@@ -114,5 +114,25 @@ void ClassLoader::verify(Class *newClass)
 
 void ClassLoader::prepare(Class *newClass)
 {
+	calcInstanceFieldSlotsId(newClass);
+	calcStaticFieldSlotsId(newClass);
+	allocAndInitStaticVars(newClass);
+}
+
+void ClassLoader::calcInstanceFieldSlotsId(Class *newClass)
+{
+	uint32_t slotId = 0;
+	if (newClass->getSuperClass() != nullptr) {
+	
+	}
+}
+
+void ClassLoader::calcStaticFieldSlotsId(Class *newClass)
+{
+
+}
+
+void ClassLoader::allocAndInitStaticVars(Class *newClass)
+{
 
 }
