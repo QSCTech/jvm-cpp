@@ -124,7 +124,7 @@ class JavaClassFormatError: std::exception
   public:
 	explicit JavaClassFormatError(std::string which)
 	{
-		errString = "java.lang.JavaClassFormatError: " + which;
+		errString = "java.lang.ClassFormatError: " + which;
 	}
 	
 	const char *what() const throw() override
@@ -164,6 +164,19 @@ class JavaRuntimeException: std::exception
 	explicit JavaRuntimeException(std::string which)
 	{
 		errString = "java.lang.JavaRuntimeException: " + which;
+	}
+	
+	const char *what() const throw() override
+	{ return errString.c_str(); }
+};
+
+class JavaClassNotFoundException: std::exception
+{
+	std::string errString;
+  public:
+	explicit JavaClassNotFoundException(std::string name)
+	{
+		errString = "java.lang.ClassNotFoundException: " + name;
 	}
 	
 	const char *what() const throw() override

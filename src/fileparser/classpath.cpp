@@ -51,7 +51,7 @@ void Classpath::parseBootAndExtClasspath(std::string srcPath)
 
 void Classpath::parseUserClasspath(std::string srcPath)
 {
-	this->pathMap["userClasspath"] = srcPath;
+	this->pathMap["userClasspath"] = std::move(srcPath);
 }
 
 std::string Classpath::getJreDir(std::string srcPath)
@@ -73,7 +73,7 @@ std::string Classpath::getJreDir(std::string srcPath)
 
 bool Classpath::exists(std::string srcPath)
 {
-	return opendir(srcPath.c_str()) != NULL;
+	return opendir(srcPath.c_str()) != nullptr;
 }
 
 ReadClassResult Classpath::ReadClass(std::string className)
