@@ -16,7 +16,7 @@ class Class;
 
 class RunTimeConstantPool;
 
-using Constant = boost::any ;
+using Constant = boost::any;
 
 class SymRef;
 
@@ -49,6 +49,21 @@ union Slot;
 class LocalVars;
 
 class Class {
+	uint16_t accessFlag;
+	std::string name;
+	std::string superClassName;
+	std::vector<std::string> interfaceNames;
+	RunTimeConstantPool *constantPool;
+	std::vector<Field *> fields;
+	std::vector<Method *> methods;
+	ClassLoader *loader;
+	Class *superClass;
+	std::vector<Class *> interfaces;
+	uint32_t instanceSlotCount;
+	uint32_t staticSlotCount;
+	LocalVars *staticVars;
+	template<class T>
+	std::vector<T *> load(std::vector<MemberInfo *>);
   public:
 	uint16_t getAccessFlag() const;
 	const std::string &getSuperClassName() const;
@@ -68,25 +83,9 @@ class Class {
 	void setInterfaces(const std::vector<Class *> &interfaces);
 	LocalVars *getStaticVars() const;
 	void setLoader(ClassLoader *loader);
-  private:
-	uint16_t accessFlag;
-	std::string name;
-	std::string superClassName;
-	std::vector<std::string> interfaceNames;
-	RunTimeConstantPool *constantPool;
-	std::vector<Field *> fields;
-	std::vector<Method *> methods;
-	ClassLoader *loader;
-	Class *superClass;
-	std::vector<Class *> interfaces;
-	uint32_t instanceSlotCount;
-	uint32_t staticSlotCount;
-	LocalVars *staticVars;
-	template<class T>
-	std::vector<T *> load(std::vector<MemberInfo *>);
-  public:
-	explicit Class(ClassFile *cf);
 	const std::string &getName() const;
+	std::string getPackageName();
+	explicit Class(ClassFile *cf);
 	bool IsPublic();
 	bool IsSuper();
 	bool IsInterface();
@@ -95,10 +94,10 @@ class Class {
 	bool IsSynthetic();
 	bool IsEnum();
 	bool IsAnnotition();
+	bool IsAccessibleTo(Class *);
 };
 
-class RunTimeConstantPool
-{
+class RunTimeConstantPool {
 	std::vector<Constant> consts;
   public:
 	Class *belongClass;
@@ -106,47 +105,41 @@ class RunTimeConstantPool
 	Constant getConstant(uint32_t index);
 };
 
-class SymRef
-{
+class SymRef {
 	RunTimeConstantPool *rtcp;
 	std::string className;
+	void resolveClassRef();
+  public:
 	Class *ownClass;
-//	void resolveClassRef();
-  public:
 	SymRef(RunTimeConstantPool *rtcp, std::string className, Class *ownClass);
-//	Class *ResolveClass();
+	Class *ResolveClass();
 };
 
-class ClassRef: public SymRef
-{
+class ClassRef: public SymRef {
   public:
-	ClassRef(RunTimeConstantPool *rtcp, ConstantClassInfo * classInfo);
+	ClassRef(RunTimeConstantPool *rtcp, ConstantClassInfo *classInfo);
 };
 
-class MemberRef: public SymRef
-{
+class MemberRef: public SymRef {
 	std::string name;
 	std::string description;
   public:
-	MemberRef(RunTimeConstantPool *rtcp, ConstantMemberrefInfo* redInfo);
+	MemberRef(RunTimeConstantPool *rtcp, ConstantMemberrefInfo *redInfo);
 };
 
-class FieldRef: public MemberRef
-{
+class FieldRef: public MemberRef {
 	Field *field;
   public:
 	FieldRef(RunTimeConstantPool *rtcp, ConstantMemberrefInfo *redInfo);
 };
 
-class MethodRef: public MemberRef
-{
+class MethodRef: public MemberRef {
 	Method *method;
   public:
 	MethodRef(RunTimeConstantPool *rtcp, ConstantMemberrefInfo *redInfo);
 };
 
-class InterfaceMethodRef: public MemberRef
-{
+class InterfaceMethodRef: public MemberRef {
 	Method *method;
   public:
 	InterfaceMethodRef(RunTimeConstantPool *rtcp, ConstantMemberrefInfo *redInfo);
@@ -218,7 +211,7 @@ class ClassLoader {
 	static void calcInstanceFieldSlotsId(Class *newClass);
 	static void calcStaticFieldSlotsId(Class *newClass);
 	static void allocAndInitStaticVars(Class *newClass);
-	static void initStaticFinalVar(Class* newClass, Field *field);
+	static void initStaticFinalVar(Class *newClass, Field *field);
 };
 
 union DoubleUnion {
@@ -419,6 +412,18 @@ inline void Class::setStaticSlotCount(uint32_t staticSlotCount) {
 
 inline void Class::setStaticVars(LocalVars *staticVars) {
 	Class::staticVars = staticVars;
+}
+
+inline bool Class::IsAccessibleTo(Class *otherClass) {
+	return IsPublic() || getPackageName() == otherClass->getPackageName();
+}
+
+inline std::string Class::getPackageName() {
+	auto position = name.find_last_of('/');
+	if (position != std::string::npos) {
+		return name.substr(0, position);
+	}
+	return "";
 }
 
 

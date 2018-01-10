@@ -203,15 +203,21 @@ belongClass), consts(std::vector<Constant>(constPool.Info.size())) {
 SymRef::SymRef(RunTimeConstantPool *rtcp, std::string className, Class *ownClass)
 : rtcp(rtcp), className(className), ownClass(ownClass) {}
 
-//void SymRef::resolveClassRef() {
-//	auto classLoader = rtcp->belongClass->getLoader();
-//	auto newClass = classLoader->LoadClass(className);
-//	if
-//}
-//
-//Class *SymRef::ResolveClass() {
-//	return nullptr;
-//}
+void SymRef::resolveClassRef() {
+	auto mainClass = rtcp->belongClass;
+	auto newClass = mainClass->getLoader()->LoadClass(className);
+	if (!newClass->IsAccessibleTo(mainClass)) {
+		throw JavaIllegalAccessException();
+	}
+	ownClass = newClass;
+}
+
+Class *SymRef::ResolveClass() {
+	if (ownClass == nullptr) {
+		resolveClassRef();
+	}
+	return ownClass;
+}
 
 
 Constant RunTimeConstantPool::getConstant(uint32_t index) {
