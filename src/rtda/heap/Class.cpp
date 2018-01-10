@@ -9,7 +9,8 @@ std::string ObjectClass = "java/lang/Object";
 Class::Class(ClassFile *cf)
 : accessFlag(cf->AccessFlags()), name(cf->ClassName()), superClassName(cf->SuperClassName()),
   interfaceNames(cf->InterfaceName()), superClass(nullptr),
-  constantPool(new RunTimeConstantPool(this, *cf->GetConstantPool())), fields(load<Field>(cf->Fields())), methods(load<Method>(cf->Methods())) {}
+  constantPool(new RunTimeConstantPool(this, *cf->GetConstantPool())), fields(load<Field>(cf->Fields())),
+  methods(load<Method>(cf->Methods())) {}
 
 ClassMember::ClassMember(MemberInfo *memberInfo, Class *belongClass)
 : accessFlags(memberInfo->AccessFlags()), name(memberInfo->Name()), descriptor(memberInfo->Descriptor()),
@@ -147,21 +148,20 @@ void ClassLoader::initStaticFinalVar(Class *newClass, Field *field) {
 	auto slotId = field->slotId;
 	auto descriptor = field->descriptor;
 	auto intTypes = std::vector<std::string>({"Z", "B", "C", "S", "I"});
-	
 	if (cpIndex > 0) {
 		if (std::find(intTypes.begin(), intTypes.end(), descriptor) != intTypes.end()) {
 			auto val = constPool->getConstant(cpIndex);
-			vars->SetInt(slotId, boost::any_cast<int32_t >(val));
-		} else if(descriptor == "J") {
+			vars->SetInt(slotId, boost::any_cast<int32_t>(val));
+		} else if (descriptor == "J") {
 			auto val = constPool->getConstant(cpIndex);
-			vars->SetLong(slotId, boost::any_cast<int64_t >(val));
-		} else if(descriptor == "F") {
+			vars->SetLong(slotId, boost::any_cast<int64_t>(val));
+		} else if (descriptor == "F") {
 			auto val = constPool->getConstant(cpIndex);
-			vars->SetFloat(slotId, boost::any_cast<float >(val));
-		}else if(descriptor == "D") {
+			vars->SetFloat(slotId, boost::any_cast<float>(val));
+		} else if (descriptor == "D") {
 			auto val = constPool->getConstant(cpIndex);
-			vars->SetDouble(slotId, boost::any_cast<double >(val));
-		}  else if(descriptor == "Ljava/lang/String") {
+			vars->SetDouble(slotId, boost::any_cast<double>(val));
+		} else if (descriptor == "Ljava/lang/String") {
 			// TODO
 		}
 	}
@@ -169,17 +169,13 @@ void ClassLoader::initStaticFinalVar(Class *newClass, Field *field) {
 }
 
 RunTimeConstantPool::RunTimeConstantPool(Class *belongClass, ConstantPool constPool) : belongClass(
-belongClass), consts(std::vector<Constant>(constPool.Info.size()))
-{
+belongClass), consts(std::vector<Constant>(constPool.Info.size())) {
 	using namespace ConstantInfoSpace;
-	for (auto constInfo: constPool.Info)
-	{
-		if (constInfo == nullptr)
-		{
+	for (auto constInfo: constPool.Info) {
+		if (constInfo == nullptr) {
 			continue;
 		}
-		switch (constInfo->getTag())
-		{
+		switch (constInfo->getTag()) {
 			case CONSTANT_Integer:
 				consts.emplace_back(((ConstantIntegerInfo *) (constInfo))->getValue());
 			case CONSTANT_Float:
@@ -189,15 +185,15 @@ belongClass), consts(std::vector<Constant>(constPool.Info.size()))
 			case CONSTANT_Double:
 				consts.emplace_back(((ConstantDoubleInfo *) (constInfo))->getValue());
 			case CONSTANT_String:
-				consts.emplace_back(((ConstantStringInfo*)(constInfo))->String());
+				consts.emplace_back(((ConstantStringInfo *) (constInfo))->String());
 			case CONSTANT_Class:
-				consts.emplace_back(ClassRef(this, ((ConstantClassInfo*)(constInfo))));
+				consts.emplace_back(ClassRef(this, ((ConstantClassInfo *) (constInfo))));
 			case CONSTANT_Fieldref:
-				consts.emplace_back(FieldRef(this, ((ConstantFieldrefInfo *)(constInfo))));
+				consts.emplace_back(FieldRef(this, ((ConstantFieldrefInfo *) (constInfo))));
 			case CONSTANT_Methodref:
-				consts.emplace_back(MemberRef(this, ((ConstantMethodrefInfo *)(constInfo))));
+				consts.emplace_back(MemberRef(this, ((ConstantMethodrefInfo *) (constInfo))));
 			case CONSTANT_InterfaceMethodref:
-				consts.emplace_back(InterfaceMethodRef(this, ((ConstantInterfaceMethodrefInfo *)(constInfo))));
+				consts.emplace_back(InterfaceMethodRef(this, ((ConstantInterfaceMethodrefInfo *) (constInfo))));
 			default:
 				break;
 		}
@@ -205,32 +201,37 @@ belongClass), consts(std::vector<Constant>(constPool.Info.size()))
 }
 
 SymRef::SymRef(RunTimeConstantPool *rtcp, std::string className, Class *ownClass)
-: rtcp(rtcp), className(className), ownClass(ownClass)
-{}
+: rtcp(rtcp), className(className), ownClass(ownClass) {}
+
+//void SymRef::resolveClassRef() {
+//	auto classLoader = rtcp->belongClass->getLoader();
+//	auto newClass = classLoader->LoadClass(className);
+//	if
+//}
+//
+//Class *SymRef::ResolveClass() {
+//	return nullptr;
+//}
 
 
-Constant RunTimeConstantPool::getConstant(uint32_t index)
-{
+Constant RunTimeConstantPool::getConstant(uint32_t index) {
 	return Constant();
 }
 
-ClassRef::ClassRef(RunTimeConstantPool *rtcp, ConstantClassInfo * classInfo) : SymRef(rtcp, classInfo->Name(), nullptr)
-{}
+ClassRef::ClassRef(RunTimeConstantPool *rtcp, ConstantClassInfo *classInfo) : SymRef(rtcp,
+                                                                                     classInfo->Name(),
+                                                                                     nullptr) {}
 
 MemberRef::MemberRef(RunTimeConstantPool *rtcp, ConstantMemberrefInfo *readInfo) : SymRef(
 rtcp,
 readInfo->ClassName(),
-nullptr), name(readInfo->NameAndType()["name"]), description(readInfo->NameAndType()["type"])
-{}
+nullptr), name(readInfo->NameAndType()["name"]), description(readInfo->NameAndType()["type"]) {}
 
 FieldRef::FieldRef(RunTimeConstantPool *rtcp,
-ConstantFieldrefInfo *redInfo) : MemberRef(rtcp, redInfo), field(nullptr)
-{}
+ConstantFieldrefInfo *redInfo) : MemberRef(rtcp, redInfo), field(nullptr) {}
 
 MethodRef::MethodRef(RunTimeConstantPool *rtcp, ConstantMethodrefInfo *redInfo)
-: MemberRef(rtcp, redInfo), method(nullptr)
-{}
+: MemberRef(rtcp, redInfo), method(nullptr) {}
 
 InterfaceMethodRef::InterfaceMethodRef(RunTimeConstantPool *rtcp, ConstantInterfaceMethodrefInfo *redInfo)
-: MemberRef(rtcp, redInfo), method(nullptr)
-{}
+: MemberRef(rtcp, redInfo), method(nullptr) {}

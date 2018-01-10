@@ -99,9 +99,9 @@ class Class {
 
 class RunTimeConstantPool
 {
-	Class *belongClass;
 	std::vector<Constant> consts;
   public:
+	Class *belongClass;
 	RunTimeConstantPool(Class *belongClass, ConstantPool constPool);
 	Constant getConstant(uint32_t index);
 };
@@ -111,8 +111,10 @@ class SymRef
 	RunTimeConstantPool *rtcp;
 	std::string className;
 	Class *ownClass;
+//	void resolveClassRef();
   public:
 	SymRef(RunTimeConstantPool *rtcp, std::string className, Class *ownClass);
+//	Class *ResolveClass();
 };
 
 class ClassRef: public SymRef
