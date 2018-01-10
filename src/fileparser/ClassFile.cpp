@@ -1,32 +1,25 @@
 #include "ClassFile.hpp"
 
-ParseResult ClassFile::Parse(std::vector<byte> classData)
-{
-	try
-	{
+ParseResult ClassFile::Parse(std::vector<byte> classData) {
+	try {
 		auto cr = ClassReader(classData);
 		auto result = this->Read(&cr);
 		return result;
-	} catch (std::exception &e)
-	{
+	} catch (std::exception &e) {
 		return {std::string(e.what()), STATUS_ERR};
 	}
 }
 
-ParseResult ClassFile::Read(ClassReader *reader)
-{
+ParseResult ClassFile::Read(ClassReader *reader) {
 	auto result = this->readAndCheckMagic(reader);
-	if (result.status == STATUS_ERR)
-	{
+	if (result.status == STATUS_ERR) {
 		return result;
 	}
 	result = this->readAndCheckVersion(reader);
-	if (result.status == STATUS_ERR)
-	{
+	if (result.status == STATUS_ERR) {
 		return result;
 	}
-	try
-	{
+	try {
 		this->cp = ConstantPool::readConstantPool(reader);
 		this->accessFlags = reader->readUint16();
 		this->thisClass = reader->readUint16();
@@ -37,24 +30,20 @@ ParseResult ClassFile::Read(ClassReader *reader)
 		this->attributes = AttributeSpace::readAttributes(reader, this->cp);
 		return {"", STATUS_OK};
 	}
-	catch (JavaClassFormatError &err)
-	{
+	catch (JavaClassFormatError &err) {
 		return {std::string(err.what()), STATUS_ERR};
 	}
 }
 
-ParseResult ClassFile::readAndCheckMagic(ClassReader *reader)
-{
+ParseResult ClassFile::readAndCheckMagic(ClassReader *reader) {
 	this->magic = reader->readUint32();
-	if (magic != 0xCAFEBABE)
-	{
+	if (magic != 0xCAFEBABE) {
 		return {"java.lang.ClassFormatError: magic!", STATUS_ERR};
 	}
 	return {"", STATUS_OK};
 }
 
-ParseResult ClassFile::readAndCheckVersion(ClassReader *reader)
-{
+ParseResult ClassFile::readAndCheckVersion(ClassReader *reader) {
 	this->minorVersion = reader->readUint16();
 	this->majorVersion = reader->readUint16();
 	if (this->majorVersion == 45) return {"", STATUS_OK};
@@ -62,64 +51,51 @@ ParseResult ClassFile::readAndCheckVersion(ClassReader *reader)
 	return {"java.lang.UnsupportedClassVersionError!: major: " + std::to_string(this->majorVersion), STATUS_ERR};
 }
 
-uint16_t ClassFile::MinorVersion()
-{
+uint16_t ClassFile::MinorVersion() {
 	return this->minorVersion;
 }
 
-uint16_t ClassFile::MajorVersion()
-{
+uint16_t ClassFile::MajorVersion() {
 	return this->majorVersion;
 }
 
-ConstantPool *ClassFile::GetConstantPool()
-{
+ConstantPool *ClassFile::GetConstantPool() {
 	return this->cp;
 }
 
-uint16_t ClassFile::AccessFlags()
-{
+uint16_t ClassFile::AccessFlags() {
 	return this->accessFlags;
 }
 
-std::vector<MemberInfo *> ClassFile::Fields()
-{
+std::vector<MemberInfo *> ClassFile::Fields() {
 	return this->fields;
 }
 
-std::vector<MemberInfo *> ClassFile::Methods()
-{
+std::vector<MemberInfo *> ClassFile::Methods() {
 	return this->methods;
 }
 
-std::string ClassFile::ClassName()
-{
+std::string ClassFile::ClassName() {
 	return this->cp->getClassName(this->thisClass);
 }
 
-std::string ClassFile::SuperClassName()
-{
+std::string ClassFile::SuperClassName() {
 	if (this->superClass > 0) return this->cp->getClassName(this->superClass);
 	return ""; /* java.lang.Object don't has superclass */
 }
 
-std::vector<std::string> ClassFile::InterfaceName()
-{
+std::vector<std::string> ClassFile::InterfaceName() {
 	std::vector<std::string> vec(this->interfaces.size());
-	for (int i = 0; i < vec.size(); i++)
-	{
+	for (int i = 0; i < vec.size(); i++) {
 		vec[i] = this->cp->getClassName(this->interfaces[i]);
 	}
 	return vec;
 }
 
-MemberInfo *ClassFile::getMainMethod()
-{
-	for(auto me : this->Methods())
-	{
+MemberInfo *ClassFile::getMainMethod() {
+	for (auto me : this->Methods()) {
 //		printf("%s: %s\n", me->Name().c_str(), me->Descriptor().c_str());
-		if(me->Name() == "main" && me->Descriptor() == "([Ljava/lang/String;)V")
-		{
+		if (me->Name() == "main" && me->Descriptor() == "([Ljava/lang/String;)V") {
 			return me;
 		}
 	}
@@ -127,19 +103,16 @@ MemberInfo *ClassFile::getMainMethod()
 }
 
 
-std::vector<MemberInfo *> MemberInfo::readMembers(ClassReader *reader, ConstantPool *constantPool)
-{
+std::vector<MemberInfo *> MemberInfo::readMembers(ClassReader *reader, ConstantPool *constantPool) {
 	auto memberCount = reader->readUint16();
 	std::vector<MemberInfo *> members(memberCount);
-	for (int i = 0; i < memberCount; i++)
-	{
+	for (int i = 0; i < memberCount; i++) {
 		members[i] = readMember(reader, constantPool);
 	}
 	return members;
 }
 
-MemberInfo *MemberInfo::readMember(ClassReader *reader, ConstantPool *constantPool)
-{
+MemberInfo *MemberInfo::readMember(ClassReader *reader, ConstantPool *constantPool) {
 	return new MemberInfo(constantPool,
 	                      reader->readUint16(),
 	                      reader->readUint16(),
@@ -147,28 +120,31 @@ MemberInfo *MemberInfo::readMember(ClassReader *reader, ConstantPool *constantPo
 	                      AttributeSpace::readAttributes(reader, constantPool));
 }
 
-uint16_t MemberInfo::AccessFlags()
-{
+uint16_t MemberInfo::AccessFlags() {
 	return this->accessFlags;
 }
 
-std::string MemberInfo::Name()
-{
+std::string MemberInfo::Name() {
 	return this->constantPool->getUtf8(this->nameIndex);
 }
 
-std::string MemberInfo::Descriptor()
-{
+std::string MemberInfo::Descriptor() {
 	return this->constantPool->getUtf8(this->descriptorIndex);
 }
 
-CodeAttribute *MemberInfo::getCodeAttribute()
-{
-	for (auto attrInfo : this->attributes)
-	{
-		if (attrInfo->getAttrName() == AttributeSpace::CodeATTR)
-		{
+CodeAttribute *MemberInfo::getCodeAttribute() {
+	for (auto attrInfo : this->attributes) {
+		if (attrInfo->getAttrName() == AttributeSpace::CodeATTR) {
 			return (CodeAttribute *) attrInfo;
+		}
+	}
+	return nullptr;
+}
+
+ConstantValueAttribute *MemberInfo::getConstantValueAttribute() {
+	for (auto attrInfo: attributes) {
+		if (attrInfo->getAttrName() == AttributeSpace::ConstantValueATTR) {
+			return (ConstantValueAttribute *) (attrInfo);
 		}
 	}
 	return nullptr;

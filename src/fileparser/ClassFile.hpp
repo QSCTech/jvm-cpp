@@ -94,6 +94,7 @@ class MemberInfo
 	std::string Name();
 	std::string Descriptor();
 	CodeAttribute* getCodeAttribute();
+	ConstantValueAttribute* getConstantValueAttribute();
 };
 
 #endif
