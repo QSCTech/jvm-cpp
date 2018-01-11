@@ -16,6 +16,51 @@ ClassMember::ClassMember(MemberInfo *memberInfo, Class *belongClass)
 : accessFlags(memberInfo->AccessFlags()), name(memberInfo->Name()), descriptor(memberInfo->Descriptor()),
   belongClass(belongClass) {}
 
+void FieldRef::resolveFieldRef() {
+	auto mainClass = rtcp->belongClass;
+	auto newClass = mainClass->getLoader()->LoadClass(className);
+	field = lookupField(newClass, name, description);
+	if (field == nullptr) {
+		throw JavaFieldNotExistException();
+	} else if (!field->IsAccessibleTo(mainClass)) {
+		throw JavaIllegalAccessException();
+	}
+}
+
+Field *FieldRef::lookupField(Class *owner, std::string name, std::string descriptor) {
+	for (auto field : owner->getFields()) {
+		if (field->name == name && field->descriptor == descriptor) {
+			return field;
+		}
+	}
+	for (auto interface: owner->getInterfaces()) {
+		auto field = lookupField(interface, name, descriptor);
+		if (field != nullptr) {
+			return field;
+		}
+	}
+	if (owner->getSuperClass() != nullptr) {
+		return lookupField(owner->getSuperClass(), name, descriptor);
+	}
+	return nullptr;
+}
+
+bool ClassMember::IsAccessibleTo(Class *otherClass) {
+	if (IsPublic()) {
+		return true;
+	}
+	if (IsProtected()) {
+		return otherClass == belongClass || otherClass->IsSubClassOf(belongClass)
+		|| otherClass->getPackageName() == belongClass->getPackageName();
+	}
+	
+	if (IsPrivate()) {
+		return otherClass->getPackageName() == belongClass->getPackageName();
+	}
+	
+	return otherClass == belongClass;
+}
+
 Field::Field(MemberInfo *memberInfo, Class *belongClass) : ClassMember(memberInfo, belongClass),
                                                            constValueIndex(memberInfo->getConstantValueAttribute() !=
                                                            nullptr
@@ -236,8 +281,29 @@ nullptr), name(readInfo->NameAndType()["name"]), description(readInfo->NameAndTy
 FieldRef::FieldRef(RunTimeConstantPool *rtcp,
 ConstantFieldrefInfo *redInfo) : MemberRef(rtcp, redInfo), field(nullptr) {}
 
+Field *FieldRef::ResolveField() {
+	if (field == nullptr) {
+		resolveFieldRef();
+	}
+	return field;
+}
+
 MethodRef::MethodRef(RunTimeConstantPool *rtcp, ConstantMethodrefInfo *redInfo)
 : MemberRef(rtcp, redInfo), method(nullptr) {}
 
 InterfaceMethodRef::InterfaceMethodRef(RunTimeConstantPool *rtcp, ConstantInterfaceMethodrefInfo *redInfo)
 : MemberRef(rtcp, redInfo), method(nullptr) {}
+
+
+bool Class::IsSubClassOf(Class *otherClass) {
+	auto super = getSuperClass();
+	if (super == otherClass) {
+		return true;
+	}
+	
+	if (super == nullptr) {
+		return false;
+	}
+	
+	return super->IsSubClassOf(otherClass);
+}

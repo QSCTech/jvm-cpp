@@ -197,4 +197,17 @@ class JavaIllegalAccessException: std::exception
 	{ return errString.c_str(); }
 };
 
+class JavaFieldNotExistException: std::exception
+{
+	std::string errString;
+  public:
+	explicit JavaFieldNotExistException()
+	{
+		errString = "java.lang.FieldNotExistException";
+	}
+	
+	const char *what() const throw() override
+	{ return errString.c_str(); }
+};
+
 #endif //JVM_ERROR_H

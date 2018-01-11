@@ -95,6 +95,7 @@ class Class {
 	bool IsEnum();
 	bool IsAnnotition();
 	bool IsAccessibleTo(Class *);
+	bool IsSubClassOf(Class *otherClass);
 };
 
 class RunTimeConstantPool {
@@ -106,10 +107,10 @@ class RunTimeConstantPool {
 };
 
 class SymRef {
-	RunTimeConstantPool *rtcp;
-	std::string className;
 	void resolveClassRef();
   public:
+	std::string className;
+	RunTimeConstantPool *rtcp;
 	Class *ownClass;
 	SymRef(RunTimeConstantPool *rtcp, std::string className, Class *ownClass);
 	Class *ResolveClass();
@@ -121,9 +122,9 @@ class ClassRef: public SymRef {
 };
 
 class MemberRef: public SymRef {
+  public:
 	std::string name;
 	std::string description;
-  public:
 	MemberRef(RunTimeConstantPool *rtcp, ConstantMemberrefInfo *redInfo);
 };
 
@@ -131,6 +132,9 @@ class FieldRef: public MemberRef {
 	Field *field;
   public:
 	FieldRef(RunTimeConstantPool *rtcp, ConstantMemberrefInfo *redInfo);
+	Field* ResolveField();
+	void resolveFieldRef();
+	static Field* lookupField(Class* owner, std::string name, std::string descriptor);
 };
 
 class MethodRef: public MemberRef {
@@ -152,6 +156,12 @@ class ClassMember {
 	std::string descriptor;
 	Class *belongClass;
 	ClassMember(MemberInfo *memberInfo, Class *belongClass);
+	bool IsAccessibleTo(Class *otherClass);
+	bool IsPublic();
+	bool IsStatic();
+	bool IsProtected();
+	bool IsPrivate();
+	bool IsFinal();
 };
 
 class Field: public ClassMember {
@@ -159,11 +169,6 @@ class Field: public ClassMember {
 	uint32_t constValueIndex;
 	uint32_t slotId;
 	Field(MemberInfo *memberInfo, Class *belongClass);
-	bool IsPublic();
-	bool IsStatic();
-	bool IsProtected();
-	bool IsPrivate();
-	bool IsFinal();
 	bool IsSynthetic();
 	bool IsTransient();
 	bool IsEnum();
@@ -178,11 +183,6 @@ class Method: public ClassMember {
   public:
 	Method(MemberInfo *memberInfo,
 	Class *belongClass);
-	bool IsPublic();
-	bool IsStatic();
-	bool IsProtected();
-	bool IsPrivate();
-	bool IsFinal();
 	bool IsSynthetic();
 	bool IsAbstract();
 	bool IsSynchronized();
@@ -426,29 +426,28 @@ inline std::string Class::getPackageName() {
 	return "";
 }
 
-
-inline bool Field::IsPublic() {
+inline bool ClassMember::IsPublic() {
 	return (accessFlags & AccessFlags::ACC_PUBLIC) != 0;
 }
 
-inline bool Field::IsStatic() {
+inline bool ClassMember::IsStatic() {
 	return (accessFlags & AccessFlags::ACC_STATIC) != 0;
 }
 
-inline bool Field::IsProtected() {
+inline bool ClassMember::IsProtected() {
 	return (accessFlags & AccessFlags::ACC_PROTECTED) != 0;
 }
 
-inline bool Field::IsPrivate() {
+inline bool ClassMember::IsPrivate() {
 	return (accessFlags & AccessFlags::ACC_PRIVATE) != 0;
+}
+
+inline bool ClassMember::IsFinal() {
+	return (accessFlags & AccessFlags::ACC_FINAL) != 0;
 }
 
 inline bool Field::IsTransient() {
 	return (accessFlags & AccessFlags::ACC_TRANSIENT) != 0;
-}
-
-inline bool Field::IsFinal() {
-	return (accessFlags & AccessFlags::ACC_FINAL) != 0;
 }
 
 inline bool Field::IsSynthetic() {
@@ -465,27 +464,6 @@ inline bool Field::IsVolatile() {
 
 inline bool Field::IsLongOrDouble() {
 	return descriptor == "J" || descriptor == "D";
-}
-
-
-inline bool Method::IsPublic() {
-	return 0 != (accessFlags & AccessFlags::ACC_PUBLIC);
-}
-
-inline bool Method::IsStatic() {
-	return 0 != (accessFlags & AccessFlags::ACC_STATIC);
-}
-
-inline bool Method::IsProtected() {
-	return 0 != (accessFlags & AccessFlags::ACC_PROTECTED);
-}
-
-inline bool Method::IsPrivate() {
-	return 0 != (accessFlags & AccessFlags::ACC_PRIVATE);
-}
-
-inline bool Method::IsFinal() {
-	return 0 != (accessFlags & AccessFlags::ACC_FINAL);
 }
 
 inline bool Method::IsSynthetic() {
