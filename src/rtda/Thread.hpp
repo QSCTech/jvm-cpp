@@ -55,8 +55,10 @@ class Frame
 	Thread *thread;
 	int nextPc;
   public:
-	Frame(Thread *thread, uint32_t maxLocals, uint32_t maxStack);
+//	Frame(Thread *thread, uint32_t maxLocals, uint32_t maxStack);
+	Frame(Thread *thread, Method* method);
 	Frame *lower;
+	Method* method;
 	LocalVars *getLocalVars() const;
 	OperandStack *getOperandStack() const;
 	Thread *getThread() const;

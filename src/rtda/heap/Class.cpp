@@ -307,3 +307,23 @@ bool Class::IsSubClassOf(Class *otherClass) {
 	
 	return super->IsSubClassOf(otherClass);
 }
+
+LocalVars::LocalVars(uint32_t maxLocals)
+{
+	this->slots = std::vector<Slot *>(maxLocals);
+	for (uint32_t i = 0; i < maxLocals; i++)
+	{
+		this->slots[i] = new Slot(0);
+	}
+}
+
+
+Object::Object(Class *ownClass) : ownClass(ownClass), fields(new LocalVars(ownClass->getInstanceSlotCount())) {
+
+}
+
+Slot::Slot(int32_t num) : num(num)
+{}
+
+Slot::Slot(Object* ref) : ref(ref)
+{}

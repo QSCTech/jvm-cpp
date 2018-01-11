@@ -96,6 +96,7 @@ class Class {
 	bool IsAnnotition();
 	bool IsAccessibleTo(Class *);
 	bool IsSubClassOf(Class *otherClass);
+	
 };
 
 class RunTimeConstantPool {
@@ -177,10 +178,10 @@ class Field: public ClassMember {
 };
 
 class Method: public ClassMember {
-	uint32_t maxStack;
-	uint32_t maxLocals;
 	std::vector<byte> code;
   public:
+	uint32_t maxStack;
+	uint32_t maxLocals;
 	Method(MemberInfo *memberInfo,
 	Class *belongClass);
 	bool IsSynthetic();
@@ -245,7 +246,9 @@ class LocalVars {
 
 class Object {
 	Class *ownClass;
-	LocalVars fields;
+	LocalVars *fields;
+  public:
+	Object(Class *ownClass);
 };
 
 inline void LocalVars::SetInt(uint32_t index, int32_t val) {

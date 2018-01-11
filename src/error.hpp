@@ -210,4 +210,17 @@ class JavaFieldNotExistException: std::exception
 	{ return errString.c_str(); }
 };
 
+class JavaInstantiationException: std::exception
+{
+	std::string errString;
+  public:
+	explicit JavaInstantiationException()
+	{
+		errString = "java.lang.InstantiationException";
+	}
+	
+	const char *what() const throw() override
+	{ return errString.c_str(); }
+};
+
 #endif //JVM_ERROR_H
