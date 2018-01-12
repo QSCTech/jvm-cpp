@@ -70,7 +70,7 @@ ConstantPool *ConstantPool::readConstantPool(ClassReader *reader)
 
 ConstantInfo *ConstantPool::getConstantInfo(uint16_t index)
 {
-	if (index < this->Info.size() && index > 0)
+	if (index < Info.size() && index > 0)
 	{
 		auto cpInfo = this->Info[index];
 		if (cpInfo != nullptr)
@@ -307,8 +307,9 @@ uint8_t ConstantMemberrefInfo::getTag()
 
 void ConstantMemberrefInfo::readInfo(ClassReader *reader)
 {
-	this->classIndex = reader->readUint16();
-	this->nameAndTypeIndex = reader->readUint16();
+	classIndex = reader->readUint16();
+	nameAndTypeIndex = reader->readUint16();
+	std::cout << classIndex << ": " << nameAndTypeIndex << std::endl;
 }
 
 std::string ConstantMemberrefInfo::ClassName()

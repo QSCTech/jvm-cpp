@@ -86,6 +86,8 @@ class Class {
 	const std::string &getName() const;
 	std::string getPackageName();
 	explicit Class(ClassFile *cf);
+	Method* getStaticMethod(std::string name, std::string descriptor);
+	Method* getMainMethod();
 	bool IsPublic();
 	bool IsSuper();
 	bool IsInterface();
@@ -178,8 +180,8 @@ class Field: public ClassMember {
 };
 
 class Method: public ClassMember {
-	std::vector<byte> code;
   public:
+	std::vector<byte> code;
 	uint32_t maxStack;
 	uint32_t maxLocals;
 	Method(MemberInfo *memberInfo,
@@ -427,6 +429,19 @@ inline std::string Class::getPackageName() {
 		return name.substr(0, position);
 	}
 	return "";
+}
+
+inline Method *Class::getStaticMethod(std::string name, std::string descriptor) {
+	for (auto method : methods) {
+		if (method->IsStatic() && method->name == name && method->descriptor == descriptor) {
+			return method;
+		}
+	}
+	return nullptr;
+}
+
+inline Method *Class::getMainMethod() {
+	return getStaticMethod("main", "([Ljava/lang/String;)V");
 }
 
 inline bool ClassMember::IsPublic() {

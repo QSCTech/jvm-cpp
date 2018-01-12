@@ -5,12 +5,15 @@ void Jvm::StartJvm(std::map<std::string, docopt::value> args)
 	auto cp = new Classpath(args);
 	auto target = args["<target>"].asString();
 	std::replace(target.begin(), target.end(), '.', boost::filesystem::path::preferred_separator);
-	auto cf = loadClass(target, cp);
+	auto classLoader = new ClassLoader(cp);
+//	auto cf = loadClass(target, cp);
 //	printClassInfo(cf);
 //	auto frame = Frame(nullptr, 100, 100);
 //	testLocalVars(frame.getLocalVars());
 //	testOperandStack(frame.getOperandStack());
-	auto mainMethod = cf->getMainMethod();
+	auto mainClass = classLoader->LoadClass(target);
+	auto mainMethod = mainClass->getMainMethod();
+	
 	if (mainMethod != nullptr)
 	{
 		interpret(mainMethod);
@@ -107,13 +110,9 @@ void Jvm::testOperandStack(OperandStack *stack)
 	Test::assert_equal(100, stack->PopInt());
 }
 
-void Jvm::interpret(MemberInfo *memberInfo)
+void Jvm::interpret(Method *method)
 {
-	auto codeAttr = memberInfo->getCodeAttribute();
-	auto maxLocals = codeAttr->getMaxLocals();
-	auto maxStacks = codeAttr->getMaxStack();
-	auto bytecode = codeAttr->getCode();
-	
+	auto bytecode = method->code;
 	std::cout << "bytecode(" << bytecode.size() << "): " << std::endl;
 	for (auto i: bytecode)
 	{
@@ -121,11 +120,11 @@ void Jvm::interpret(MemberInfo *memberInfo)
 	}
 	printf("\n");
 	auto thread = new Thread(1024);
-	auto frame = new Frame(thread, maxLocals, maxStacks);
+	auto frame = new Frame(thread, method);
 	try
 	{
 		thread->PushFrame(frame);
-		loop(thread, bytecode);
+		loop(thread, method->code);
 	} catch (JavaRuntimeException &err)
 	{
 		printf("%s", err.what());

@@ -25,7 +25,7 @@ class Jvm
 	static void printClassInfo(ClassFile *cf);
 	static void testLocalVars(LocalVars *vars);
 	static void testOperandStack(OperandStack *stack);
-	static void interpret(MemberInfo* memberInfo);
+	static void interpret(Method* method);
 	static void loop(Thread *thread, std::vector<byte> bytecode);
 };
 

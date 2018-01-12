@@ -98,6 +98,7 @@ Class *ClassLoader::LoadClass(std::string className) {
 		return classMap[className];
 	}
 	return loadNoArrayClass(className);
+	
 }
 
 Class *ClassLoader::defineClass(std::vector<byte> data) {
@@ -119,7 +120,7 @@ Class *ClassLoader::parseClass(std::vector<byte> data) {
 }
 
 void ClassLoader::resolveSuperClass(Class *itemClass) {
-	if (itemClass->getName() != ObjectClass) {
+	if (itemClass->getSuperClassName() != ObjectClass) {
 		itemClass->setSuperClass(itemClass->getLoader()->LoadClass(itemClass->getSuperClassName()));
 	}
 }
@@ -132,7 +133,6 @@ void ClassLoader::resolveInterfaces(Class *itemClass) {
 			interfaces.push_back(itemClass->getLoader()->LoadClass(name));
 		}
 	}
-	
 }
 
 void ClassLoader::link(Class *newClass) {
@@ -214,7 +214,7 @@ void ClassLoader::initStaticFinalVar(Class *newClass, Field *field) {
 }
 
 RunTimeConstantPool::RunTimeConstantPool(Class *belongClass, ConstantPool constPool) : belongClass(
-belongClass), consts(std::vector<Constant>(constPool.Info.size())) {
+belongClass), consts(std::vector<Constant>(0)) {
 	using namespace ConstantInfoSpace;
 	for (auto constInfo: constPool.Info) {
 		if (constInfo == nullptr) {
@@ -223,22 +223,31 @@ belongClass), consts(std::vector<Constant>(constPool.Info.size())) {
 		switch (constInfo->getTag()) {
 			case CONSTANT_Integer:
 				consts.emplace_back(((ConstantIntegerInfo *) (constInfo))->getValue());
+				break;
 			case CONSTANT_Float:
 				consts.emplace_back(((ConstantFloatInfo *) (constInfo))->getValue());
+				break;
 			case CONSTANT_Long:
 				consts.emplace_back(((ConstantLongInfo *) (constInfo))->getValue());
+				break;
 			case CONSTANT_Double:
 				consts.emplace_back(((ConstantDoubleInfo *) (constInfo))->getValue());
+				break;
 			case CONSTANT_String:
 				consts.emplace_back(((ConstantStringInfo *) (constInfo))->String());
+				break;
 			case CONSTANT_Class:
 				consts.emplace_back(ClassRef(this, ((ConstantClassInfo *) (constInfo))));
+				break;
 			case CONSTANT_Fieldref:
 				consts.emplace_back(FieldRef(this, ((ConstantFieldrefInfo *) (constInfo))));
+				break;
 			case CONSTANT_Methodref:
 				consts.emplace_back(MemberRef(this, ((ConstantMethodrefInfo *) (constInfo))));
+				break;
 			case CONSTANT_InterfaceMethodref:
 				consts.emplace_back(InterfaceMethodRef(this, ((ConstantInterfaceMethodrefInfo *) (constInfo))));
+				break;
 			default:
 				break;
 		}
