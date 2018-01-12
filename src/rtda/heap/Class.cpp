@@ -6,6 +6,10 @@
 
 std::string ObjectClass = "java/lang/Object";
 
+std::vector<std::string> IntTypesStr = std::vector<std::string>({"Z", "B", "C", "S", "I"});
+
+std::vector<byte> IntTypesByte = std::vector<byte>({'Z', 'B', 'C', 'S', 'I'});
+
 Class::Class(ClassFile *cf)
 : accessFlag(cf->AccessFlags()), name(cf->ClassName()), superClassName(cf->SuperClassName()),
   interfaceNames(cf->InterfaceName()), superClass(nullptr),
@@ -53,11 +57,9 @@ bool ClassMember::IsAccessibleTo(Class *otherClass) {
 		return otherClass == belongClass || otherClass->IsSubClassOf(belongClass)
 		|| otherClass->getPackageName() == belongClass->getPackageName();
 	}
-	
 	if (IsPrivate()) {
 		return otherClass->getPackageName() == belongClass->getPackageName();
 	}
-	
 	return otherClass == belongClass;
 }
 
@@ -192,9 +194,8 @@ void ClassLoader::initStaticFinalVar(Class *newClass, Field *field) {
 	auto cpIndex = field->constValueIndex;
 	auto slotId = field->slotId;
 	auto descriptor = field->descriptor;
-	auto intTypes = std::vector<std::string>({"Z", "B", "C", "S", "I"});
 	if (cpIndex > 0) {
-		if (std::find(intTypes.begin(), intTypes.end(), descriptor) != intTypes.end()) {
+		if (std::find(IntTypesStr.begin(), IntTypesStr.end(), descriptor) != IntTypesStr.end()) {
 			auto val = constPool->getConstant(cpIndex);
 			vars->SetInt(slotId, boost::any_cast<int32_t>(val));
 		} else if (descriptor == "J") {
@@ -309,19 +310,15 @@ bool Class::IsSubClassOf(Class *otherClass) {
 	if (super == otherClass) {
 		return true;
 	}
-	
 	if (super == nullptr) {
 		return false;
 	}
-	
 	return super->IsSubClassOf(otherClass);
 }
 
-LocalVars::LocalVars(uint32_t maxLocals)
-{
+LocalVars::LocalVars(uint32_t maxLocals) {
 	this->slots = std::vector<Slot *>(maxLocals);
-	for (uint32_t i = 0; i < maxLocals; i++)
-	{
+	for (uint32_t i = 0; i < maxLocals; i++) {
 		this->slots[i] = new Slot(0);
 	}
 }
@@ -331,8 +328,6 @@ Object::Object(Class *ownClass) : ownClass(ownClass), fields(new LocalVars(ownCl
 
 }
 
-Slot::Slot(int32_t num) : num(num)
-{}
+Slot::Slot(int32_t num) : num(num) {}
 
-Slot::Slot(Object* ref) : ref(ref)
-{}
+Slot::Slot(Object *ref) : ref(ref) {}

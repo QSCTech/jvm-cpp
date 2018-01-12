@@ -38,8 +38,6 @@ class Method;
 
 class ClassLoader;
 
-extern std::string ObjectClass;
-
 class Object;
 
 union DoubleUnion;
@@ -47,6 +45,12 @@ union DoubleUnion;
 union Slot;
 
 class LocalVars;
+
+extern std::string ObjectClass;
+
+extern std::vector<std::string> IntTypesStr;
+
+extern std::vector<byte> IntTypesByte;
 
 class Class {
 	uint16_t accessFlag;

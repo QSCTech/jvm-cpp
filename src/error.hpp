@@ -223,4 +223,17 @@ class JavaInstantiationException: std::exception
 	{ return errString.c_str(); }
 };
 
+class JavaIncompatibleClassChangeException: std::exception
+{
+	std::string errString;
+  public:
+	explicit JavaIncompatibleClassChangeException()
+	{
+		errString = "java.lang.IncompatibleClassChangeException";
+	}
+	
+	const char *what() const throw() override
+	{ return errString.c_str(); }
+};
+
 #endif //JVM_ERROR_H
