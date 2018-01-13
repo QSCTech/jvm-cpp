@@ -20,6 +20,14 @@ class INSTANCE_OF;
 
 class CHECK_CAST;
 
+class LDC;
+
+class LDC_W;
+
+class LDC2_W;
+
+void _ldc(Frame *frame, uint32_t index);
+
 class NEW: public Index16Instruction {
   public:
 	void Execute(Frame *frame) override;
@@ -54,6 +62,43 @@ class CHECK_CAST: public Index16Instruction {
   public:
 	void Execute(Frame *frame) override;
 };
+
+class LDC: public Index8Instruction {
+  public:
+	void Execute(Frame *frame) override;
+};
+
+class LDC_W: public Index16Instruction {
+  public:
+	void Execute(Frame *frame) override;
+};
+
+class LDC2_W: public Index16Instruction {
+  public:
+	void Execute(Frame *frame) override;
+};
+
+inline void LDC::Execute(Frame *frame) {
+	_ldc(frame, Index);
+}
+
+inline void LDC_W::Execute(Frame *frame) {
+	_ldc(frame, Index);
+}
+
+inline void LDC2_W::Execute(Frame *frame) {
+	auto stack = frame->getOperandStack();
+	auto rtcp = frame->method->belongClass->getConstantPool();
+	auto constant = rtcp->getConstant(Index);
+	if (typeid(int64_t) == constant.type()) {
+		stack->PushLong(boost::any_cast<int64_t >(constant));
+	} else if (typeid(double) == constant.type()) {
+		stack->PushDouble(boost::any_cast<double >(constant));
+	} else {
+		throw JavaClassFormatError("LDC2_W!");
+	}
+}
+
 
 inline void NEW::Execute(Frame *frame) {
 	auto cp = frame->method->belongClass->getConstantPool();
@@ -238,12 +283,28 @@ inline void CHECK_CAST::Execute(Frame *frame) {
 	if (ref == nullptr) {
 		return;
 	}
-	
 	auto rtcp = frame->method->belongClass->getConstantPool();
 	auto classRef = boost::any_cast<ClassRef *>(rtcp->getConstant(Index));
 	auto targetClass = classRef->ResolveClass();
 	if (!ref->IsInstanceOf(targetClass)) {
 		throw JavaClassCastException();
+	}
+}
+
+void _ldc(Frame *frame, uint32_t index) {
+	auto stack = frame->getOperandStack();
+	auto rtcp = frame->method->belongClass->getConstantPool();
+	auto constant = rtcp->getConstant(index);
+	if (typeid(int32_t) == constant.type()) {
+		stack->PushInt(boost::any_cast<int32_t>(constant));
+	} else if (typeid(float) == constant.type()) {
+		stack->PushFloat(boost::any_cast<float>(constant));
+	} else if (typeid(std::string) == constant.type()) {
+	
+	} else if (typeid(ClassRef*) == constant.type()) {
+	
+	} else {
+		throw TodoException("LDC!");
 	}
 }
 

@@ -263,4 +263,17 @@ class JavaClassCastException: std::exception
 };
 
 
+class TodoException: std::exception
+{
+	std::string errString;
+  public:
+	explicit TodoException(std::string name)
+	{
+		errString = "TodoException: " + name;
+	}
+	
+	const char *what() const throw() override
+	{ return errString.c_str(); }
+};
+
 #endif //JVM_ERROR_H
