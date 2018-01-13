@@ -251,9 +251,9 @@ class LocalVars {
 };
 
 class Object {
+  public:
 	Class *ownClass;
 	LocalVars *fields;
-  public:
 	Object(Class *ownClass);
 };
 

@@ -236,4 +236,18 @@ class JavaIncompatibleClassChangeException: std::exception
 	{ return errString.c_str(); }
 };
 
+class JavaNullPointerException: std::exception
+{
+	std::string errString;
+  public:
+	explicit JavaNullPointerException()
+	{
+		errString = "java.lang.NullPointerException";
+	}
+	
+	const char *what() const throw() override
+	{ return errString.c_str(); }
+};
+
+
 #endif //JVM_ERROR_H
