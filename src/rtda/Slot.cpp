@@ -3,7 +3,7 @@
 //
 
 #include "Slot.hpp"
-OperandStack::OperandStack(uint32_t maxStack) : size(0)
+OperandStack::OperandStack(uint32_t maxStack) : size(maxStack)
 {
 	this->slots = std::vector<Slot *>(maxStack);
 	for (uint32_t i = 0; i < maxStack; i++)

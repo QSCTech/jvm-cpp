@@ -8,7 +8,7 @@
 
 class NEW;
 
-class PUSH_STATIC;
+class PUT_STATIC;
 
 class GET_STATIC;
 
@@ -28,12 +28,16 @@ class LDC2_W;
 
 void _ldc(Frame *frame, uint32_t index);
 
+class INVOKE_SPECIAL;
+
+class INVOKE_VIRTUAL;
+
 class NEW: public Index16Instruction {
   public:
 	void Execute(Frame *frame) override;
 };
 
-class PUSH_STATIC: public Index16Instruction {
+class PUT_STATIC: public Index16Instruction {
   public:
 	void Execute(Frame *frame) override;
 };
@@ -78,6 +82,51 @@ class LDC2_W: public Index16Instruction {
 	void Execute(Frame *frame) override;
 };
 
+class INVOKE_SPECIAL: public Index16Instruction {
+  public:
+	void Execute(Frame *frame) override;
+};
+
+class INVOKE_VIRTUAL: public Index16Instruction {
+  public:
+	void Execute(Frame *frame) override;
+};
+
+inline void INVOKE_VIRTUAL::Execute(Frame *frame) {
+	auto rtcp = frame->method->belongClass->getConstantPool();
+	auto methodRef = boost::any_cast<MethodRef *>(rtcp->getConstant(Index));
+	auto descriptor = methodRef->description;
+	if (methodRef->name == "println") {
+		auto stack = frame->getOperandStack();
+		if (descriptor == "(Z)V") {
+			std::cout << (stack->PopInt() != 0) << std::endl;
+		} else if (descriptor == "(C)V") {
+			printf("%c\n", stack->PopInt());
+		} else if (descriptor == "(B)V") {
+			std::cout << stack->PopInt() << std::endl;
+		} else if (descriptor == "(S)V") {
+			std::cout << stack->PopInt() << std::endl;
+		} else if (descriptor == "(I)V") {
+			std::cout << stack->PopInt() << std::endl;
+		} else if (descriptor == "(J)V") {
+			std::cout << stack->PopLong() << std::endl;
+		} else if (descriptor == "(F)V") {
+			std::cout << stack->PopFloat() << std::endl;
+		} else if (descriptor == "(D)V") {
+			std::cout << stack->PopDouble() << std::endl;
+		} else {
+			throw TodoException(descriptor);
+		}
+		stack->PopRef();
+	}
+}
+
+inline void INVOKE_SPECIAL::Execute(Frame *frame) {
+	frame->getOperandStack()->PopRef();
+	// TODO: complete it
+}
+
+
 inline void LDC::Execute(Frame *frame) {
 	_ldc(frame, Index);
 }
@@ -91,9 +140,9 @@ inline void LDC2_W::Execute(Frame *frame) {
 	auto rtcp = frame->method->belongClass->getConstantPool();
 	auto constant = rtcp->getConstant(Index);
 	if (typeid(int64_t) == constant.type()) {
-		stack->PushLong(boost::any_cast<int64_t >(constant));
+		stack->PushLong(boost::any_cast<int64_t>(constant));
 	} else if (typeid(double) == constant.type()) {
-		stack->PushDouble(boost::any_cast<double >(constant));
+		stack->PushDouble(boost::any_cast<double>(constant));
 	} else {
 		throw JavaClassFormatError("LDC2_W!");
 	}
@@ -102,6 +151,10 @@ inline void LDC2_W::Execute(Frame *frame) {
 
 inline void NEW::Execute(Frame *frame) {
 	auto cp = frame->method->belongClass->getConstantPool();
+	for (auto content : cp->consts) {
+		std::cout << content.type().name() << std::endl;
+	}
+	std::cout << boost::any_cast<MemberRef *>(cp->getConstant(Index))->name << std::endl;
 	auto classRef = boost::any_cast<ClassRef *>(cp->getConstant(Index));
 	auto newClass = classRef->ResolveClass();
 	if (newClass->IsAbstract() || newClass->IsInterface()) {
@@ -111,7 +164,7 @@ inline void NEW::Execute(Frame *frame) {
 	frame->getOperandStack()->PushRef(ref);
 }
 
-inline void PUSH_STATIC::Execute(Frame *frame) {
+inline void PUT_STATIC::Execute(Frame *frame) {
 	auto currentMethod = frame->method;
 	auto currentClass = currentMethod->belongClass;
 	auto rtcp = currentClass->getConstantPool();
@@ -291,17 +344,22 @@ inline void CHECK_CAST::Execute(Frame *frame) {
 	}
 }
 
-void _ldc(Frame *frame, uint32_t index) {
+inline void _ldc(Frame *frame, uint32_t index) {
 	auto stack = frame->getOperandStack();
 	auto rtcp = frame->method->belongClass->getConstantPool();
 	auto constant = rtcp->getConstant(index);
-	if (typeid(int32_t) == constant.type()) {
+	for (auto content : rtcp->consts) {
+		std::cout << "content type: " << content.type().name() << std::endl;
+	}
+	std::cout << "constant().type: " << constant.type().name() << std::endl;
+	std::cout << "typeid(ClassRef *).name(): " << typeid(ClassRef*).name() << std::endl;
+	if (typeid(int32_t).name() == constant.type().name()) {
 		stack->PushInt(boost::any_cast<int32_t>(constant));
-	} else if (typeid(float) == constant.type()) {
+	} else if (typeid(float).name() == constant.type().name()) {
 		stack->PushFloat(boost::any_cast<float>(constant));
-	} else if (typeid(std::string) == constant.type()) {
+	} else if (typeid(std::string).name() == constant.type().name()) {
 	
-	} else if (typeid(ClassRef*) == constant.type()) {
+	} else if (typeid(ClassRef *).name() == constant.type().name()) {
 	
 	} else {
 		throw TodoException("LDC!");

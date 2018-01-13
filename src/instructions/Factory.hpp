@@ -4,7 +4,7 @@
 
 #ifndef JVM_FACTORY_H
 #define JVM_FACTORY_H
-#include "Instruction.hpp"
+//#include "Instruction.hpp"
 #include "Comparisons.hpp"
 #include "Constants.hpp"
 #include "Control.hpp"
@@ -14,6 +14,7 @@
 #include "Mathe.hpp"
 #include "stack.hpp"
 #include "Store.hpp"
+#include "references.hpp"
 
 namespace Factory
 {

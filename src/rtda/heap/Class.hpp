@@ -109,8 +109,8 @@ class Class {
 };
 
 class RunTimeConstantPool {
-	std::vector<Constant> consts;
   public:
+	std::vector<Constant> consts;
 	Class *belongClass;
 	RunTimeConstantPool(Class *belongClass, ConstantPool constPool);
 	Constant getConstant(uint32_t index);

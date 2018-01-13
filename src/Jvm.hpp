@@ -1,11 +1,11 @@
 #ifndef JVM_JVM_H
 #define JVM_JVM_H
 #include "docopt.h"
-#include "util.hpp"
-#include "ClassFile.hpp"
-#include "classpath.hpp"
-#include "Slot.hpp"
-#include "Thread.hpp"
+//#include "util.hpp"
+//#include "ClassFile.hpp"
+//#include "classpath.hpp"
+//#include "Slot.hpp"
+//#include "Thread.hpp"
 #include "Factory.hpp"
 #include <iostream>
 

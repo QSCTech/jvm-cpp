@@ -235,19 +235,19 @@ belongClass), consts(std::vector<Constant>(0)) {
 				consts.emplace_back(((ConstantDoubleInfo *) (constInfo))->getValue());
 				break;
 			case CONSTANT_String:
-				consts.emplace_back(((ConstantStringInfo *) (constInfo))->String());
+				consts.emplace_back(std::string(((ConstantStringInfo *) (constInfo))->String()));
 				break;
 			case CONSTANT_Class:
-				consts.emplace_back(ClassRef(this, ((ConstantClassInfo *) (constInfo))));
+				consts.emplace_back(new ClassRef(this, ((ConstantClassInfo *) (constInfo))));
 				break;
 			case CONSTANT_Fieldref:
-				consts.emplace_back(FieldRef(this, ((ConstantFieldrefInfo *) (constInfo))));
+				consts.emplace_back(new FieldRef(this, ((ConstantFieldrefInfo *) (constInfo))));
 				break;
 			case CONSTANT_Methodref:
-				consts.emplace_back(MemberRef(this, ((ConstantMethodrefInfo *) (constInfo))));
+				consts.emplace_back(new MemberRef(this, ((ConstantMethodrefInfo *) (constInfo))));
 				break;
 			case CONSTANT_InterfaceMethodref:
-				consts.emplace_back(InterfaceMethodRef(this, ((ConstantInterfaceMethodrefInfo *) (constInfo))));
+				consts.emplace_back(new InterfaceMethodRef(this, ((ConstantInterfaceMethodrefInfo *) (constInfo))));
 				break;
 			default:
 				break;
@@ -276,7 +276,7 @@ Class *SymRef::ResolveClass() {
 
 
 Constant RunTimeConstantPool::getConstant(uint32_t index) {
-	return Constant();
+	return consts[index];
 }
 
 ClassRef::ClassRef(RunTimeConstantPool *rtcp, ConstantClassInfo *classInfo) : SymRef(rtcp,

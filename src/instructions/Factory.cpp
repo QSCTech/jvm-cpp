@@ -186,10 +186,8 @@ auto Factory::goto_w = new GOTO_W();
 // monitorexit   = new MONITOR_EXIT();
 // invoke_native = new INVOKE_NATIVE();
 
-Instruction *Factory::NewInstruction(uint8_t opcode)
-{
-	switch (opcode)
-	{
+Instruction *Factory::NewInstruction(uint8_t opcode) {
+	switch (opcode) {
 		case 0x00:
 			return nop;
 		case 0x01:
@@ -226,12 +224,12 @@ Instruction *Factory::NewInstruction(uint8_t opcode)
 			return bipush;
 		case 0x11:
 			return sipush;
-			// case 0x12:
-			// 	return &LDC{};
-			// case 0x13:
-			// 	return &LDC_W{};
-			// case 0x14:
-			// 	return &LDC2_W{};
+		case 0x12:
+			return new LDC();
+		case 0x13:
+			return new LDC_W();
+		case 0x14:
+			return new LDC2_W();
 		case 0x15:
 			return iload;
 		case 0x16:
@@ -546,26 +544,26 @@ Instruction *Factory::NewInstruction(uint8_t opcode)
 			// 	return areturn;
 			// case 0xb1:
 			// 	return _return;
-			//	case 0xb2:
-			//		return &GET_STATIC{};
-			// case 0xb3:
-			// 	return &PUT_STATIC{};
-			// case 0xb4:
-			// 	return &GET_FIELD{};
-			// case 0xb5:
-			// 	return &PUT_FIELD{};
-			//	case 0xb6:
-			//		return &INVOKE_VIRTUAL{};
-			// case 0xb7:
-			// 	return &INVOKE_SPECIAL{};
+		case 0xb2:
+			return new GET_STATIC();
+		case 0xb3:
+			return new PUT_STATIC();
+		case 0xb4:
+			return new GET_FIELD();
+		case 0xb5:
+			return new PUT_FIELD();
+		case 0xb6:
+			return new INVOKE_VIRTUAL();
+		case 0xb7:
+			return new INVOKE_SPECIAL();
 			// case 0xb8:
 			// 	return &INVOKE_STATIC{};
 			// case 0xb9:
 			// 	return &INVOKE_INTERFACE{};
 			// case 0xba:
 			// 	return &INVOKE_DYNAMIC{};
-			// case 0xbb:
-			// 	return &NEW{};
+		case 0xbb:
+			return new NEW();
 			// case 0xbc:
 			// 	return &NEW_ARRAY{};
 			// case 0xbd:
@@ -574,10 +572,10 @@ Instruction *Factory::NewInstruction(uint8_t opcode)
 			// 	return arraylength;
 			// case 0xbf:
 			// 	return athrow;
-			// case 0xc0:
-			// 	return &CHECK_CAST{};
-			// case 0xc1:
-			// 	return &INSTANCE_OF{};
+		case 0xc0:
+			return new CHECK_CAST();
+		case 0xc1:
+			return new INSTANCE_OF();
 			// case 0xc2:
 			// 	return monitorenter;
 			// case 0xc3:

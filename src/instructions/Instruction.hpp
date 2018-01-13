@@ -6,6 +6,7 @@
 #define JVM_INSTRUCTION_H
 #include "Thread.hpp"
 #include "util.hpp"
+#include <typeinfo>
 class BytecodeReader;
 
 class Instruction;

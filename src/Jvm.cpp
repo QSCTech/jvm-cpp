@@ -1,7 +1,6 @@
 #include "Jvm.hpp"
 
-void Jvm::StartJvm(std::map<std::string, docopt::value> args)
-{
+void Jvm::StartJvm(std::map<std::string, docopt::value> args) {
 	auto cp = new Classpath(args);
 	auto target = args["<target>"].asString();
 	std::replace(target.begin(), target.end(), '.', boost::filesystem::path::preferred_separator);
@@ -13,31 +12,28 @@ void Jvm::StartJvm(std::map<std::string, docopt::value> args)
 //	testOperandStack(frame.getOperandStack());
 	auto mainClass = classLoader->LoadClass(target);
 	auto mainMethod = mainClass->getMainMethod();
-	
-	if (mainMethod != nullptr)
-	{
+	if (mainMethod != nullptr) {
+//		try {
 		interpret(mainMethod);
-	} else
-	{
+//		} catch (TodoException& e) {
+//			std::cout << e.what() << std::endl;
+//		}
+	} else {
 		printf("Main method not found in class %s\n", target.c_str());
 	}
 }
 
-ClassFile *Jvm::loadClass(std::string className, Classpath *cp)
-{
+ClassFile *Jvm::loadClass(std::string className, Classpath *cp) {
 	auto result = cp->ReadClass(className);
-	if (result.status == STATUS_OK)
-	{
+	if (result.status == STATUS_OK) {
 		std::cout << "data(" << result.data.size() << "): " << std::endl;
-		for (auto i: result.data)
-		{
+		for (auto i: result.data) {
 			printf("%X", i);
 		}
 		std::cout << std::endl;
 		auto classFile = new ClassFile();
 		auto parseResult = classFile->Parse(result.data);
-		if (parseResult.status == STATUS_ERR)
-		{
+		if (parseResult.status == STATUS_ERR) {
 			std::cout << parseResult.error << std::endl;
 		}
 		return classFile;
@@ -46,36 +42,30 @@ ClassFile *Jvm::loadClass(std::string className, Classpath *cp)
 	return nullptr;
 }
 
-void Jvm::printClassInfo(ClassFile *cf)
-{
-	if (cf != nullptr)
-	{
+void Jvm::printClassInfo(ClassFile *cf) {
+	if (cf != nullptr) {
 		std::cout << "version: " << cf->MajorVersion() << "." << cf->MinorVersion() << "\n"
 		          << "constants count: " << cf->GetConstantPool()->Info.size() << std::endl;
 		printf("access flags: 0x%X\n", cf->AccessFlags());
 		printf("this class: %s\n", cf->ClassName().c_str());
 		printf("super class: %s\n", cf->SuperClassName().c_str());
 		printf("interfaces: [ ");
-		for (auto interface : cf->InterfaceName())
-		{
+		for (auto interface : cf->InterfaceName()) {
 			std::cout << interface << ", ";
 		}
 		std::cout << "]" << std::endl;
 		printf("fields count: %lu\n", cf->Fields().size());
-		for (auto field : cf->Fields())
-		{
+		for (auto field : cf->Fields()) {
 			printf("    %s\n", field->Name().c_str());
 		}
 		printf("methods count: %lu\n", cf->Methods().size());
-		for (auto method : cf->Methods())
-		{
+		for (auto method : cf->Methods()) {
 			printf("    %s\n", method->Name().c_str());
 		}
 	}
 }
 
-void Jvm::testLocalVars(LocalVars *vars)
-{
+void Jvm::testLocalVars(LocalVars *vars) {
 	vars->SetInt(0, 100);
 	vars->SetInt(1, -100);
 	vars->SetLong(2, 1312413413);
@@ -92,8 +82,7 @@ void Jvm::testLocalVars(LocalVars *vars)
 	Test::assert_equal<Object *>(nullptr, vars->GetRef(9));
 }
 
-void Jvm::testOperandStack(OperandStack *stack)
-{
+void Jvm::testOperandStack(OperandStack *stack) {
 	stack->PushInt(100);
 	stack->PushInt(-100);
 	stack->PushLong(1312413413);
@@ -110,38 +99,31 @@ void Jvm::testOperandStack(OperandStack *stack)
 	Test::assert_equal(100, stack->PopInt());
 }
 
-void Jvm::interpret(Method *method)
-{
+void Jvm::interpret(Method *method) {
 	auto bytecode = method->code;
 	std::cout << "bytecode(" << bytecode.size() << "): " << std::endl;
-	for (auto i: bytecode)
-	{
+	for (auto i: bytecode) {
 		printf("%X", i);
 	}
 	printf("\n");
 	auto thread = new Thread(1024);
 	auto frame = new Frame(thread, method);
-	try
-	{
+	try {
 		thread->PushFrame(frame);
 		loop(thread, method->code);
-	} catch (JavaRuntimeException &err)
-	{
+	} catch (JavaRuntimeException &err) {
 		printf("%s", err.what());
-		for(auto s : frame->getLocalVars()->slots)
-		{
+		for (auto s : frame->getLocalVars()->slots) {
 			printf("\nnum: %d, ref: %p\n", s->num, s->ref);
 		}
 	}
 }
 
-void Jvm::loop(Thread *thread, std::vector<byte> bytecode)
-{
+void Jvm::loop(Thread *thread, std::vector<byte> bytecode) {
 	int32_t pc;
 	auto frame = thread->PopFrame();
 	auto reader = new BytecodeReader();
-	while (true)
-	{
+	while (true) {
 		printf("frame.getPc: %d\n", frame->getNextPc());
 		pc = frame->getNextPc();
 		thread->setPc(pc);
