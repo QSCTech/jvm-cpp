@@ -316,6 +316,29 @@ bool Class::IsSubClassOf(Class *otherClass) {
 	return super->IsSubClassOf(otherClass);
 }
 
+bool Class::IsImplements(Class *otherClass) {
+	for (auto iface: interfaces) {
+		if (iface == otherClass || iface->IsSubInterfaceOf(otherClass)) {
+			return true;
+		}
+	}
+	auto super = getSuperClass();
+	if (super == nullptr) {
+		return false;
+	}
+	return super->IsImplements(otherClass);
+}
+
+bool Class::IsSubInterfaceOf(Class *otherClass) {
+	for (auto superInterface: interfaces) {
+		if (superInterface == otherClass || superInterface->IsSubInterfaceOf(otherClass)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 LocalVars::LocalVars(uint32_t maxLocals) {
 	this->slots = std::vector<Slot *>(maxLocals);
 	for (uint32_t i = 0; i < maxLocals; i++) {

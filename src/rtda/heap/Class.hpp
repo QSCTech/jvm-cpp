@@ -91,6 +91,7 @@ class Class {
 	std::string getPackageName();
 	explicit Class(ClassFile *cf);
 	Method* getStaticMethod(std::string name, std::string descriptor);
+	bool IsAssignableFrom(Class *otherClass);
 	Method* getMainMethod();
 	bool IsPublic();
 	bool IsSuper();
@@ -102,6 +103,8 @@ class Class {
 	bool IsAnnotition();
 	bool IsAccessibleTo(Class *);
 	bool IsSubClassOf(Class *otherClass);
+	bool IsImplements(Class *otherClass);
+	bool IsSubInterfaceOf(Class *otherClass);
 	
 };
 
@@ -254,7 +257,8 @@ class Object {
   public:
 	Class *ownClass;
 	LocalVars *fields;
-	Object(Class *ownClass);
+	explicit Object(Class *ownClass);
+	bool IsInstanceOf(Class* targetClass);
 };
 
 inline void LocalVars::SetInt(uint32_t index, int32_t val) {
@@ -448,6 +452,17 @@ inline Method *Class::getMainMethod() {
 	return getStaticMethod("main", "([Ljava/lang/String;)V");
 }
 
+inline bool Class::IsAssignableFrom(Class *otherClass) {
+	if (this == otherClass) {
+		return true;
+	}
+	if (!IsInterface()) {
+		return IsSubClassOf(otherClass);
+	} else {
+		return IsImplements(otherClass);
+	}
+}
+
 inline bool ClassMember::IsPublic() {
 	return (accessFlags & AccessFlags::ACC_PUBLIC) != 0;
 }
@@ -514,6 +529,10 @@ inline bool Method::IsNative() {
 
 inline bool Method::IsStrict() {
 	return 0 != (accessFlags & AccessFlags::ACC_STRICT);
+}
+
+inline bool Object::IsInstanceOf(Class *targetClass) {
+	return targetClass->IsAssignableFrom(ownClass);
 }
 
 #endif //JVM_CLASS_HPP

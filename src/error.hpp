@@ -249,5 +249,18 @@ class JavaNullPointerException: std::exception
 	{ return errString.c_str(); }
 };
 
+class JavaClassCastException: std::exception
+{
+	std::string errString;
+  public:
+	explicit JavaClassCastException()
+	{
+		errString = "java.lang.ClassCastException";
+	}
+	
+	const char *what() const throw() override
+	{ return errString.c_str(); }
+};
+
 
 #endif //JVM_ERROR_H

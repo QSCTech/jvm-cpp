@@ -16,6 +16,10 @@ class PUT_FIELD;
 
 class GET_FIELD;
 
+class INSTANCE_OF;
+
+class CHECK_CAST;
+
 class NEW: public Index16Instruction {
   public:
 	void Execute(Frame *frame) override;
@@ -41,6 +45,15 @@ class GET_FIELD: public Index16Instruction {
 	void Execute(Frame *frame) override;
 };
 
+class INSTANCE_OF: public Index16Instruction {
+  public:
+	void Execute(Frame *frame) override;
+};
+
+class CHECK_CAST: public Index16Instruction {
+  public:
+	void Execute(Frame *frame) override;
+};
 
 inline void NEW::Execute(Frame *frame) {
 	auto cp = frame->method->belongClass->getConstantPool();
@@ -95,7 +108,6 @@ inline void GET_STATIC::Execute(Frame *frame) {
 	if (!field->IsStatic()) {
 		throw JavaIncompatibleClassChangeException();
 	}
-	
 	auto descriptor = field->descriptor;
 	auto slotId = field->slotId;
 	auto slots = owner->getStaticVars();
@@ -122,7 +134,6 @@ inline void PUT_FIELD::Execute(Frame *frame) {
 	auto fieldRef = boost::any_cast<FieldRef *>(rtcp->getConstant(Index));
 	auto field = fieldRef->ResolveField();
 	auto owner = field->belongClass;
-	
 	if (field->IsStatic()) {
 		throw JavaIncompatibleClassChangeException();
 	}
@@ -131,7 +142,6 @@ inline void PUT_FIELD::Execute(Frame *frame) {
 			throw JavaIllegalAccessException();
 		}
 	}
-	
 	auto descriptor = field->descriptor;
 	auto slotId = field->slotId;
 	auto stack = frame->getOperandStack();
@@ -187,12 +197,10 @@ inline void GET_FIELD::Execute(Frame *frame) {
 	if (ref == nullptr) {
 		throw JavaNullPointerException();
 	}
-	
 	auto descriptor = field->descriptor;
 	auto slotId = field->slotId;
 	auto slots = ref->fields;
 	auto head = descriptor[0];
-	
 	if (std::find(IntTypesByte.begin(), IntTypesByte.end(), head) != IntTypesByte.end()) {
 		stack->PushInt(slots->GetInt(slotId));
 	} else if (head == 'J') {
@@ -205,5 +213,39 @@ inline void GET_FIELD::Execute(Frame *frame) {
 		stack->PushRef(slots->GetRef(slotId));
 	}
 }
+
+inline void INSTANCE_OF::Execute(Frame *frame) {
+	auto stack = frame->getOperandStack();
+	auto ref = stack->PopRef();
+	if (ref == nullptr) {
+		stack->PushInt(0);
+		return;
+	}
+	auto rtcp = frame->method->belongClass->getConstantPool();
+	auto classRef = boost::any_cast<ClassRef *>(rtcp->getConstant(Index));
+	auto targetClass = classRef->ResolveClass();
+	if (ref->IsInstanceOf(targetClass)) {
+		stack->PushInt(1);
+	} else {
+		stack->PushInt(0);
+	}
+}
+
+inline void CHECK_CAST::Execute(Frame *frame) {
+	auto stack = frame->getOperandStack();
+	auto ref = stack->PopRef();
+	stack->PushRef(ref);
+	if (ref == nullptr) {
+		return;
+	}
+	
+	auto rtcp = frame->method->belongClass->getConstantPool();
+	auto classRef = boost::any_cast<ClassRef *>(rtcp->getConstant(Index));
+	auto targetClass = classRef->ResolveClass();
+	if (!ref->IsInstanceOf(targetClass)) {
+		throw JavaClassCastException();
+	}
+}
+
 #endif //JVM_REFERENCES_HPP
 
