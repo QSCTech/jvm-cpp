@@ -302,7 +302,7 @@ inline double LocalVars::GetDouble(uint32_t index) {
 }
 
 inline void LocalVars::SetRef(uint32_t index, Object *ref) {
-	this->slots[index]->ref = ref;
+	this->slots[index] = new Slot{ref};
 }
 
 inline Object *LocalVars::GetRef(uint32_t index) {
@@ -468,6 +468,8 @@ inline bool ClassMember::IsPublic() {
 }
 
 inline bool ClassMember::IsStatic() {
+	std::cout << "AccessFlags" << " of " << name << ": " << accessFlags << std::endl;
+	std::cout << "IsStatic: " << (accessFlags & AccessFlags::ACC_STATIC) << std::endl;
 	return (accessFlags & AccessFlags::ACC_STATIC) != 0;
 }
 

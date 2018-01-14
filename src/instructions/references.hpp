@@ -94,8 +94,12 @@ class INVOKE_VIRTUAL: public Index16Instruction {
 
 inline void INVOKE_VIRTUAL::Execute(Frame *frame) {
 	auto rtcp = frame->method->belongClass->getConstantPool();
-	auto methodRef = boost::any_cast<MethodRef *>(rtcp->getConstant(Index));
+	for (auto content : rtcp->consts) {
+		std::cout << "INVOKE_VIRTUAL: " << content.type().name() << std::endl;
+	}
+	auto methodRef = boost::any_cast<MemberRef *>(rtcp->getConstant(Index - 1));
 	auto descriptor = methodRef->description;
+	std::cout << methodRef->name << ": " << descriptor << std::endl;
 	if (methodRef->name == "println") {
 		auto stack = frame->getOperandStack();
 		if (descriptor == "(Z)V") {
@@ -154,8 +158,8 @@ inline void NEW::Execute(Frame *frame) {
 	for (auto content : cp->consts) {
 		std::cout << content.type().name() << std::endl;
 	}
-	std::cout << boost::any_cast<MemberRef *>(cp->getConstant(Index))->name << std::endl;
-	auto classRef = boost::any_cast<ClassRef *>(cp->getConstant(Index));
+	std::cout << boost::any_cast<ClassRef *>(cp->getConstant(Index - 1))->className << std::endl;
+	auto classRef = boost::any_cast<ClassRef *>(cp->getConstant(Index - 1));
 	auto newClass = classRef->ResolveClass();
 	if (newClass->IsAbstract() || newClass->IsInterface()) {
 		throw JavaInstantiationException();
@@ -168,10 +172,11 @@ inline void PUT_STATIC::Execute(Frame *frame) {
 	auto currentMethod = frame->method;
 	auto currentClass = currentMethod->belongClass;
 	auto rtcp = currentClass->getConstantPool();
-	auto fieldRef = boost::any_cast<FieldRef *>(rtcp->getConstant(Index));
+	auto fieldRef = boost::any_cast<FieldRef *>(rtcp->getConstant(Index - 1));
 	auto field = fieldRef->ResolveField();
 	auto owner = field->belongClass;
 	if (!field->IsStatic()) {
+		std::cout << "Not static field: " << field->name << std::endl;
 		throw JavaIncompatibleClassChangeException();
 	}
 	if (field->IsFinal()) {
@@ -185,7 +190,12 @@ inline void PUT_STATIC::Execute(Frame *frame) {
 	auto stack = frame->getOperandStack();
 	auto head = descriptor[0];
 	if (std::find(IntTypesByte.begin(), IntTypesByte.end(), head) != IntTypesByte.end()) {
-		slots->SetInt(slotId, stack->PopInt());
+		for (auto slot : stack->slots) {
+			std::cout << slot->num << std::endl;
+		}
+		auto val = stack->PopInt();
+		std::cout << "Set: " << field->name << " " << val << std::endl;
+		slots->SetInt(slotId, val);
 	} else if (head == 'J') {
 		slots->SetLong(slotId, stack->PopLong());
 	} else if (head == 'F') {
@@ -200,7 +210,7 @@ inline void PUT_STATIC::Execute(Frame *frame) {
 
 inline void GET_STATIC::Execute(Frame *frame) {
 	auto rtcp = frame->method->belongClass->getConstantPool();
-	auto fieldRef = boost::any_cast<FieldRef *>(rtcp->getConstant(Index));
+	auto fieldRef = boost::any_cast<FieldRef *>(rtcp->getConstant(Index - 1));
 	auto field = fieldRef->ResolveField();
 	auto owner = field->belongClass;
 	if (!field->IsStatic()) {
@@ -232,14 +242,14 @@ inline void PUT_FIELD::Execute(Frame *frame) {
 	auto fieldRef = boost::any_cast<FieldRef *>(rtcp->getConstant(Index));
 	auto field = fieldRef->ResolveField();
 	auto owner = field->belongClass;
-	if (field->IsStatic()) {
-		throw JavaIncompatibleClassChangeException();
-	}
-	if (field->IsFinal()) {
-		if (currentClass != owner || currentMethod->name != "<init>") {
-			throw JavaIllegalAccessException();
-		}
-	}
+//	if (field->IsStatic()) {
+//		throw JavaIncompatibleClassChangeException();
+//	}
+//	if (field->IsFinal()) {
+//		if (currentClass != owner || currentMethod->name != "<init>") {
+//			throw JavaIllegalAccessException();
+//		}
+//	}
 	auto descriptor = field->descriptor;
 	auto slotId = field->slotId;
 	auto stack = frame->getOperandStack();
@@ -287,11 +297,12 @@ inline void GET_FIELD::Execute(Frame *frame) {
 	auto fieldRef = boost::any_cast<FieldRef *>(rtcp->getConstant(Index));
 	auto field = fieldRef->ResolveField();
 	auto owner = field->belongClass;
-	if (field->IsStatic()) {
-		throw JavaIncompatibleClassChangeException();
-	}
+//	if (field->IsStatic()) {
+//		throw JavaIncompatibleClassChangeException();
+//	}
 	auto stack = frame->getOperandStack();
 	auto ref = stack->PopRef();
+	
 	if (ref == nullptr) {
 		throw JavaNullPointerException();
 	}
@@ -320,7 +331,10 @@ inline void INSTANCE_OF::Execute(Frame *frame) {
 		return;
 	}
 	auto rtcp = frame->method->belongClass->getConstantPool();
-	auto classRef = boost::any_cast<ClassRef *>(rtcp->getConstant(Index));
+	for (auto constant : rtcp->consts) {
+		std::cout << "type name: " << constant.type().name() << std::endl;
+	}
+	auto classRef = boost::any_cast<ClassRef *>(rtcp->getConstant(Index - 1));
 	auto targetClass = classRef->ResolveClass();
 	if (ref->IsInstanceOf(targetClass)) {
 		stack->PushInt(1);
@@ -337,7 +351,7 @@ inline void CHECK_CAST::Execute(Frame *frame) {
 		return;
 	}
 	auto rtcp = frame->method->belongClass->getConstantPool();
-	auto classRef = boost::any_cast<ClassRef *>(rtcp->getConstant(Index));
+	auto classRef = boost::any_cast<ClassRef *>(rtcp->getConstant(Index - 1));
 	auto targetClass = classRef->ResolveClass();
 	if (!ref->IsInstanceOf(targetClass)) {
 		throw JavaClassCastException();
@@ -347,13 +361,14 @@ inline void CHECK_CAST::Execute(Frame *frame) {
 inline void _ldc(Frame *frame, uint32_t index) {
 	auto stack = frame->getOperandStack();
 	auto rtcp = frame->method->belongClass->getConstantPool();
-	auto constant = rtcp->getConstant(index);
+	auto constant = rtcp->getConstant(index - 1);
 	for (auto content : rtcp->consts) {
 		std::cout << "content type: " << content.type().name() << std::endl;
 	}
 	std::cout << "constant().type: " << constant.type().name() << std::endl;
 	std::cout << "typeid(ClassRef *).name(): " << typeid(ClassRef*).name() << std::endl;
 	if (typeid(int32_t).name() == constant.type().name()) {
+		std::cout << "LDC PUSH " << boost::any_cast<int32_t>(constant) << std::endl;
 		stack->PushInt(boost::any_cast<int32_t>(constant));
 	} else if (typeid(float).name() == constant.type().name()) {
 		stack->PushFloat(boost::any_cast<float>(constant));

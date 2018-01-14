@@ -72,9 +72,9 @@ Field::Field(MemberInfo *memberInfo, Class *belongClass) : ClassMember(memberInf
 
 Method::Method(MemberInfo *memberInfo,
 Class *belongClass
-) : ClassMember(memberInfo, belongClass), maxStack(memberInfo->getCodeAttribute()->getMaxStack()),
-    maxLocals(memberInfo->getCodeAttribute()->getMaxLocals()),
-    code(memberInfo->getCodeAttribute()->getCode()) {}
+) : ClassMember(memberInfo, belongClass), maxStack(memberInfo->getCodeAttribute() != nullptr ? memberInfo->getCodeAttribute()->getMaxStack() : 0),
+    maxLocals(memberInfo->getCodeAttribute() != nullptr ? memberInfo->getCodeAttribute()->getMaxLocals() : 0),
+    code(memberInfo->getCodeAttribute() != nullptr ? memberInfo->getCodeAttribute()->getCode() : std::vector<byte>(0)) {}
 
 
 ClassLoader::ClassLoader(Classpath *cp) : cp(cp), classMap(std::map<std::string, Class *>()) {}

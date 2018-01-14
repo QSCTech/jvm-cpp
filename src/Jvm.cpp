@@ -112,10 +112,10 @@ void Jvm::interpret(Method *method) {
 		thread->PushFrame(frame);
 		loop(thread, method->code);
 	} catch (JavaRuntimeException &err) {
-		printf("%s", err.what());
-		for (auto s : frame->getLocalVars()->slots) {
-			printf("\nnum: %d, ref: %p\n", s->num, s->ref);
-		}
+//		printf("%s", err.what());
+//		for (auto s : frame->getLocalVars()->slots) {
+//			printf("\nnum: %d, ref: %p\n", s->num, s->ref);
+//		}
 	}
 }
 

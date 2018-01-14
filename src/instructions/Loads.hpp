@@ -64,6 +64,7 @@ void _aload(Frame *frame, uint32_t index);
 
 inline void _iload(Frame *frame, uint32_t index)
 {
+	std::cout << "Load: " << frame->getLocalVars()->GetInt(index) << std::endl;
 	frame->getOperandStack()->PushInt(frame->getLocalVars()->GetInt(index));
 }
 

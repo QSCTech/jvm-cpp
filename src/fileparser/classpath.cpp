@@ -8,36 +8,29 @@
 using namespace boost::algorithm;
 using namespace boost::filesystem;
 
-Entry::~Entry()
-{}
+Entry::~Entry() {}
 
-Entry *Classpath::newEntry(const std::string path)
-{
-	if (path.find(';') != std::string::npos || path.find(':') != std::string::npos)
-	{
+Entry *Classpath::newEntry(const std::string path) {
+	if (path.find(';') != std::string::npos || path.find(':') != std::string::npos) {
 		return new CompositeEntry(path);
 	}
-	if (ends_with(path, "*"))
-	{
+	if (ends_with(path, "*")) {
 		return new WildcardEntry(path);
 	}
-	if (ends_with(path, ".jar") || ends_with(path, "JAR") || ends_with(path, "zip") || ends_with(path, "ZIP"))
-	{
+	if (ends_with(path, ".jar") || ends_with(path, "JAR") || ends_with(path, "zip") || ends_with(path, "ZIP")) {
 		return new ZipEntry(path);
 	}
 	return new DirEntry(path);
 }
 
-Classpath::Classpath(std::map<std::string, docopt::value> optionMap) : optionMap(optionMap)
-{
+Classpath::Classpath(std::map<std::string, docopt::value> optionMap) : optionMap(optionMap) {
 	auto jreOption = optionMap["--Xjre"].asString();
 	auto cpOption = optionMap["--classpath"].asString();
 	this->parseBootAndExtClasspath(jreOption);
 	this->parseUserClasspath(cpOption);
 }
 
-void Classpath::parseBootAndExtClasspath(std::string srcPath)
-{
+void Classpath::parseBootAndExtClasspath(std::string srcPath) {
 	path jreBootPath(this->getJreDir(srcPath));
 	path jreExtPath(this->getJreDir(srcPath));
 	jreBootPath /= "lib";
@@ -45,95 +38,83 @@ void Classpath::parseBootAndExtClasspath(std::string srcPath)
 	jreExtPath /= "lib";
 	jreExtPath /= "ext";
 	jreExtPath /= "*";
+	std::cout << "jreBootPath: " << jreBootPath.string() << std::endl;
+	std::cout << "jreExtPath: " << jreExtPath.string() << std::endl;
 	this->pathMap["bootClasspath"] = jreBootPath.string();
 	this->pathMap["extClasspath"] = jreExtPath.string();
 }
 
-void Classpath::parseUserClasspath(std::string srcPath)
-{
+void Classpath::parseUserClasspath(std::string srcPath) {
 	this->pathMap["userClasspath"] = std::move(srcPath);
 }
 
-std::string Classpath::getJreDir(std::string srcPath)
-{
+std::string Classpath::getJreDir(std::string srcPath) {
 	if (srcPath != "$JAVA_HOME" && exists(srcPath)) return srcPath;
 	if (exists("./jre")) return "./jre";
 	auto javaHome = std::string(getenv("JAVA_HOME"));
-	if (!javaHome.empty())
-	{
+	if (!javaHome.empty()) {
 		path javaSrc(javaHome);
 		javaSrc /= "jre";
-		if (exists(javaSrc.string()))
-		{
+		if (exists(javaSrc.string())) {
 			return javaSrc.string();
 		}
 	}
 	throw JavaSrcError(srcPath);
 }
 
-bool Classpath::exists(std::string srcPath)
-{
+bool Classpath::exists(std::string srcPath) {
 	return opendir(srcPath.c_str()) != nullptr;
 }
 
-ReadClassResult Classpath::ReadClass(std::string className)
-{
+ReadClassResult Classpath::ReadClass(std::string className) {
 	std::string filename;
-	if (!optionMap["--jar"].asBool())
-	{
+	if (!optionMap["--jar"].asBool()) {
 		filename = className + ".class";
-	} else
-	{
+	} else {
 		filename = className + ".jar";
 	}
 	std::cout << "filename: " << filename << std::endl;
-	if (exists(this->pathMap["bootClasspath"]))
-	{
+	auto bootClasspath = pathMap["bootClasspath"];
+	auto extClasspath = pathMap["extClasspath"];
+	if (exists(bootClasspath.substr(0, bootClasspath.size() - 1))) {
 		ReadClassResult result = WildcardEntry(this->pathMap["bootClasspath"]).readClass(filename);
 		if (result.status == STATUS_OK) return result;
 	}
-	if (exists(this->pathMap["extClasspath"]))
-	{
+	if (exists(extClasspath.substr(0, extClasspath.size() - 1))) {
 		ReadClassResult result = WildcardEntry(this->pathMap["extClasspath"]).readClass(filename);
 		if (result.status == STATUS_OK) return result;
 	}
 	return newEntry(this->pathMap["userClasspath"])->readClass(filename);
 }
 
-std::string Classpath::String()
-{
+std::string Classpath::String() {
 	return this->pathMap["userClasspath"];
 }
 
-ReadClassResult DirEntry::readClass(std::string className)
-{
+ReadClassResult DirEntry::readClass(std::string className) {
 	path pathStr(absDir);
 	pathStr /= className;
 	ReadResult result = util::ReadAllBytes(pathStr.string());
 	return {result.data, this, result.err, result.status};
 }
 
-std::string DirEntry::String()
-{
+std::string DirEntry::String() {
 	return this->absDir;
 }
 
-ReadClassResult ZipEntry::readClass(std::string className)
-{
+ReadClassResult ZipEntry::readClass(std::string className) {
 	int err = 0, stat;
 	struct zip_stat status;
 	byte *contents;
 	zip_file *file;
 	zip *zip_f = zip_open(this->absPath.c_str(), 0, &err);
 	std::vector<byte> data;
-	if (zip_f == NULL)
-	{
+	if (zip_f == NULL) {
 		return {data, this, FileReadError(this->absPath), STATUS_ERR};
 	}
 	zip_stat_init(&status);
 	stat = zip_stat(zip_f, className.c_str(), 0, &status);
-	if (stat == -1)
-	{
+	if (stat == -1) {
 		return {data, this, FileReadError(className), STATUS_ERR};
 	}
 	contents = new byte[status.size];
@@ -145,101 +126,82 @@ ReadClassResult ZipEntry::readClass(std::string className)
 	return {data, this, FileReadError(""), STATUS_OK};
 }
 
-std::string ZipEntry::String()
-{
+std::string ZipEntry::String() {
 	return this->absPath;
 }
 
-CompositeEntry::CompositeEntry(const std::string pathList) : pathList(pathList)
-{
+CompositeEntry::CompositeEntry(const std::string pathList) : pathList(pathList) {
 	std::vector<std::string> paths;
-	if (pathList.find(':'))
-	{
+	if (pathList.find(':')) {
 		split(paths, pathList, is_any_of(":"));
-	} else if (pathList.find(';'))
-	{
+	} else if (pathList.find(';')) {
 		split(paths, pathList, is_any_of(";"));
 	}
-	for (auto path: paths)
-	{
-		this->Entries.push_back(Classpath::newEntry(path));
+	for (auto filePath: paths) {
+		this->Entries.push_back(Classpath::newEntry(filePath));
 	}
 }
 
-CompositeEntry::~CompositeEntry()
-{
-	for (auto entry : this->Entries)
-	{
+CompositeEntry::~CompositeEntry() {
+	for (auto entry : this->Entries) {
 		delete entry;
 	}
 }
 
-ReadClassResult CompositeEntry::readClass(std::string className)
-{
-	for (auto entry : this->Entries)
-	{
+ReadClassResult CompositeEntry::readClass(std::string className) {
+	for (auto entry : this->Entries) {
 		ReadClassResult result = entry->readClass(className);
-		if (result.status == STATUS_OK)
-		{
+		if (result.status == STATUS_OK) {
 			return result;
 		}
 	}
 	return {std::vector<byte>(), this, FileReadError(""), STATUS_ERR};
 }
 
-std::string CompositeEntry::String()
-{
+std::string CompositeEntry::String() {
 	return this->pathList;
 }
 
-WildcardEntry::~WildcardEntry()
-{
-	for (auto entry : this->Entries)
-	{
+WildcardEntry::~WildcardEntry() {
+	for (auto entry : this->Entries) {
 		delete entry;
 	}
 }
 
-WildcardEntry::WildcardEntry(const std::string path)
-{
+WildcardEntry::WildcardEntry(const std::string targetPath) {
 	struct dirent *file;
-	auto dirPath = path;
+	auto dirPath = targetPath;
 	dirPath.pop_back();
 	boost::filesystem::canonical(dirPath).string();
-	auto dir = opendir(baseDir.c_str());
-	if (dir == NULL)
-	{
-		throw DirOpenError(baseDir);
+	auto dir = opendir(dirPath.c_str());
+	if (dir == NULL) {
+		throw DirOpenError(dirPath);
 	}
-	while ((file = readdir(dir)) != NULL)
-	{
+	while ((file = readdir(dir)) != NULL) {
 		if (file->d_type == DT_DIR) continue;
 		std::string filename(file->d_name);
-		if (ends_with(filename, ".jar") || ends_with(filename, "JAR"))
-		{
-			Entries.push_back(new ZipEntry(filename));
+		if (ends_with(filename, ".jar") || ends_with(filename, "JAR")) {
+			std::cout << "load file: " << filename << std::endl;
+			path BasePath(dirPath);
+			Entries.push_back(new ZipEntry((BasePath / filename).string()));
 		}
 	}
-	if (this->Entries.size() == 0)
-	{
-		throw FileNotFoundError(baseDir);
+	if (this->Entries.size() == 0) {
+		throw FileNotFoundError(dirPath);
 	}
 }
 
-ReadClassResult WildcardEntry::readClass(std::string className)
-{
-	for (auto entry : this->Entries)
-	{
+ReadClassResult WildcardEntry::readClass(std::string className) {
+	for (auto entry : this->Entries) {
+		std::cout << "Try read " << className << " from " << entry->String() << std::endl;
 		ReadClassResult result = entry->readClass(className);
-		if (result.status == STATUS_OK)
-		{
+		if (result.status == STATUS_OK) {
 			return result;
 		}
 	}
 	return {std::vector<byte>(), this, FileReadError(""), STATUS_ERR};
 }
 
-std::string WildcardEntry::String()
-{
+std::string WildcardEntry::String() {
 	return this->baseDir;
 }
