@@ -13,8 +13,11 @@ git clone git@github.com:nih-at/libzip.git ./libs/libzip
 echo "git clone git@github.com:docopt/docopt.cpp.git ./libs/docopt"
 git clone git@github.com:docopt/docopt.cpp.git ./libs/docopt
 
-cmake ./libs/docopt/
-make -C ./libs/docopt
-
 cmake ./libs/libzip/
 cmake ./
+
+cd ./libs/docopt/
+make
+
+cd ../../
+make
