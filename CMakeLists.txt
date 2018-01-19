@@ -4,7 +4,7 @@ project(jvm)
 
 set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(libs/docopt)
-add_subdirectory(libs/libzip)
+#add_subdirectory(libs/libzip)
 #set(CMAKE_CXX_FLAGS_DEBUG "-O0 -lboost_system -lboost_filesystem")
 #set(CMAKE_CXX_FLAGS_RELEASE "-O2 -lboost_system -lboost_filesystem")
 find_package( Boost COMPONENTS system filesystem REQUIRED ) #whatever libs you need
