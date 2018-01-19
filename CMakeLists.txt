@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_CXX_FLAGS_DEBUG "-O0 -lboost_system -lboost_filesystem")
 #set(CMAKE_CXX_FLAGS_RELEASE "-O2 -lboost_system -lboost_filesystem")
 find_package( Boost COMPONENTS system filesystem REQUIRED ) #whatever libs you need
-include_directories(libs/libzip)
+include_directories(libs/libzip/xcode)
 include_directories(libs/docopt)
 include_directories(src)
 include_directories(src/rtda)
