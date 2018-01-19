@@ -16,7 +16,7 @@ cd jvm-cpp
 ./configure.sh
 ```
 
-> Build it
+> Build it (require libzip)
 
 ```
 make
