@@ -10,19 +10,23 @@ git clone git@github.com:QSCTech/jvm-cpp.git
 cd jvm-cpp
 ``` 
 
-> Then configure(need git)
+> Then configure
+>> dependencies
+>> 
+>> - boost
+>> - libzip
 
 In *nix
 ```
-sh configure
+./configure.sh
 ```
 
 In windows
 ```
-cmd /C configure
+.\configure.bat
 ```
 
-> Build it (require libzip)
+> Build it
 
 ```
 make

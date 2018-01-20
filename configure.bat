@@ -1,5 +1,4 @@
-echo "############# need 'git' in your PATH #############"
-echo "git path: $(whereis git)"
+echo "############# need git, mingw32-make, cmake and g++ in your PATH #############"
 echo "dependence: libzip, docopt"
 
 echo "git clone git@github.com:nih-at/libzip.git libzip"
@@ -9,13 +8,13 @@ echo "git clone git@github.com:docopt/docopt.cpp.git docopt"
 git clone git@github.com:docopt/docopt.cpp.git docopt
 
 cd libzip
-cmake .
+cmake . -G "MinGW Makefiles"
 
 cd ..
-cmake .
+cmake . -G "MinGW Makefiles"
 
 cd docopt
-make
+mingw32-make
 
 cd ..
-make
+mingw32-make

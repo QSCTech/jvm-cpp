@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+echo "############# need git, make, cmake and g++ in your PATH #############"
+echo "git path: $(whereis git)"
+echo "dependence: libzip, docopt"
+
+echo "git clone git@github.com:nih-at/libzip.git libzip"
+git clone git@github.com:nih-at/libzip.git libzip
+
+echo "git clone git@github.com:docopt/docopt.cpp.git docopt"
+git clone git@github.com:docopt/docopt.cpp.git docopt
+
+cd libzip
+cmake .
+
+cd ..
+cmake .
+
+cd docopt
+make
+
+cd ..
+make
