@@ -12,8 +12,14 @@ cd jvm-cpp
 
 > Then configure(need git)
 
+In *nix
 ```
-./configure.sh
+sh configure
+```
+
+In windows
+```
+cmd /C configure
 ```
 
 > Build it (require libzip)
